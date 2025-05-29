@@ -660,3 +660,67 @@ Next time, let's work on getting those coordinated turn inputs in early and smoo
 
 
 
+at 2025-05-29 10:52:25.530279, response content:
+            
+Alright, Trainee Pilot, excellent work on your first real flight! It's completely normal to feel a bit overwhelmed, but you've taken a significant step, and I'm here to help you refine your skills.
+
+Here's your feedback from this tracking exercise:
+
+**What are my goals?**
+Your goal is to maintain continuous visual contact with the enemy aircraft by effectively controlling your aircraft's position, speed, and energy.
+
+**How am I doing?**
+You did very well in maintaining control of the aircraft throughout the flight and, crucially, you did not crash, which is a fantastic achievement for your first time in a real plane! Your initial flight control before the enemy aircraft initiated its manoeuvre was also good, showing a steady hand. However, once the enemy began its turn, you rapidly lost visual contact and fell significantly behind, indicating a challenge in adapting your flight path and energy to match the target's manoeuvre.
+
+**How to improve?**
+To maintain continuous visual contact and effectively track the enemy, you must actively manage your aircraft's energy through precise throttle control and coordinated turns. When the enemy initiates a turn, smoothly advance your **throttle** to a higher setting (e.g., 0.8 or full) to maintain sufficient **airspeed** (KIAS – Knots Indicated Airspeed, displayed on your G1000) for an effective turn. Simultaneously, use coordinated inputs with the **centre stick** (for **pitch** – nose up/down – and **roll** – tilting the wings, creating a **bank angle**) and **rudder pedals** (for yaw control, helping coordinate the turn) to establish a consistent bank angle and adjust your pitch to match the enemy's vertical movement, always keeping your **Angle of Attack** (the angle between your wing and the oncoming air) out of the **stall warning** range.
+
+
+
+at 2025-05-29 10:58:22.852033, response content:
+            
+Alright, Trainee, great job getting into the cockpit for your first tracking flight! It's completely normal to feel a bit overwhelmed when the enemy starts maneuvering, but you're here to learn, and we'll get you squared away.
+
+Let's go over your performance:
+
+**What are my goals?**
+Your primary goal is to maintain optimal tracking distance and continuous visual contact with the enemy, while ensuring safe aircraft control.
+
+**How am I doing?**
+Well done for consistently engaging with the controls and attempting to maneuver; however, during the enemy's turn, you struggled to maintain visual contact and optimal tracking distance, leading to frequent stall warnings and losing sight.
+
+**How to improve?**
+When the enemy initiates a turn, immediately advance your `throttle ratio` to maximum (1.0, full power) to maintain `KIAS` (Knots Indicated Airspeed - your speed relative to the air) and energy. Simultaneously, apply coordinated `centre stick roll` (moving the stick left/right to bank the aircraft) and `centre stick pitch` (pulling back on the stick to bring the nose around) to match the enemy's turn, while carefully managing your `angle of attack` (AoA - the angle between your wing and the oncoming air) to avoid `stall warnings` (an audible horn indicating potential loss of lift). If you hear the stall warning, immediately ease back pressure on the stick and apply full power to recover.
+
+
+
+at 2025-05-29 10:58:50.585455, response content:
+            
+Alright, Cadet, excellent first flight! It's completely normal to feel overwhelmed on your first time in a real aircraft, and you handled some challenging moments well. Let's break down your performance.
+
+**What are my goals?**
+Your goal is to maintain consistent visual contact and a stable tracking position behind the enemy aircraft, avoiding stalls and extreme maneuvers.
+
+**How am I doing?**
+You maintained a good initial position relative to the enemy aircraft, demonstrating initial control stability. However, you struggled to maintain visual contact and close the distance as the enemy began maneuvering, leading to significant separation and multiple stall warnings.
+
+**How to improve?**
+To dramatically improve your tracking, anticipate the enemy's maneuvers and immediately initiate a coordinated turn in the *same direction*. When the enemy starts turning right (as it did around the 4.59-second mark), use right aileron (turn the **yoke** right) and right rudder (push the right **rudder pedal**) to bank right and align with its turn. Simultaneously, smoothly increase **throttle** (push the throttle lever forward) to maintain your **airspeed (KIAS)** and tighten your turn radius, avoiding excessive pitch up with the yoke to prevent **stalls**. A **coordinated turn** means using both the yoke and rudder pedals together to turn smoothly without slipping or skidding. Increasing throttle provides more power, which is essential to maintain airspeed and prevent a stall (when the wing loses lift due to too high an **Angle of Attack**).
+
+
+
+at 2025-05-29 11:06:48.492358, response content:
+            
+Alright, Trainee, let's go over your first flight. It's a big step to be in a real aircraft, and I commend you for taking on this challenge.
+
+**What are my goals?**
+Your primary goal is to maintain sight of the enemy and control your aircraft's energy state effectively, preventing stalls and maintaining safe flight.
+
+**How am I doing?**
+You maintained a good initial flight path and avoided a crash despite challenging conditions, which is commendable for a first flight. However, you struggled significantly with tracking the enemy during its turn, losing sight and experiencing repeated stall warnings due to inappropriate control inputs and power management.
+
+**How to improve?**
+To improve, you must master **coordinated turns** and **energy management**. When the enemy turns, immediately apply **aileron input** (moving your center stick in the direction of the turn) to bank the aircraft, simultaneously using **rudder pedals** to keep the turn smooth and prevent adverse yaw (the tendency for the nose to initially move opposite the turn). As you bank and apply back pressure (pulling the stick back) to maintain altitude, **increase your throttle** (push the throttle lever forward) to maintain airspeed and prevent your **Angle of Attack** (AoA – the angle of your wing relative to the airflow) from becoming too high, which triggers a **stall warning** (an audible horn indicating loss of lift). Focus on smooth, continuous control inputs to maintain close tracking and safe flight.
+
+
+

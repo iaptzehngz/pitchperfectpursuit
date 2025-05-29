@@ -23,8 +23,11 @@ aircraft_type = 'Cessna 172 SP Skyhawk - 180HP - G1000'
 df = pd.read_csv('values.csv', index_col=0)
 df['rate of change of kias'] = df['kias'].diff() / df['Δt']
 df['distance'] = df['distance'].str[:-17]
-df.rename(columns={'d rate':'rate of change of distance', 'yoke pitch ratio':'centre stick pitch ratio', 'yoke roll ratio':'centre stick roll ratio'}, inplace=True)
-df.drop(columns=['Δt', 'pitch', 'ideal pitch', 'heading', 'ideal heading', 'aspect angle', 'sideslip angle', 'pitch dev', 'heading dev'], inplace=True)
+
+#df['pitch deviation grade'] = ['within view' if abs(pd) < 8 else 'lost sight, above me' if pd > for pd in df['pitch deviation']]
+#df['heading deviation grade'] = 
+
+df.drop(columns=['Δt', 'pitch', 'ideal pitch', 'heading', 'ideal heading', 'aspect angle', 'sideslip angle', 'pitch deviation', 'heading deviation'], inplace=True)
 df=df.iloc[::3]
 print(df.head(), df.columns, sep='\n'*2)
 

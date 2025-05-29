@@ -68,8 +68,8 @@ df['rate of change of kias'] = df['kias'].diff() / df['Δt']
 #df['heading dev rate'] = df['heading dev'].diff() / df['Δt']
 
 df['in front of or behind enemy plane'] = ['behind' if aa < 90 else 'in front' for aa in df['aspect angle']]
-df['pitch deviation grade'] = ['good' if abs(pdev) < 3 else 'might lose sight' if abs(pdev) < 8 else 'lost sight' for pdev in df['pitch dev']]
-df['heading deviation grade'] = ['good' if abs(hdev) < 5 else 'ok' if abs(hdev) < 20 else 'might lose sight' if abs(hdev) < 30 else 'lost sight' for hdev in df['heading dev']]
+df['pitch deviation grade'] = ['visible' if abs(pdev) < 8 else 'lost sight' for pdev in df['pitch dev']]
+df['heading deviation grade'] = ['visible' if abs(hdev) < 30 else 'lost sight' for hdev in df['heading dev']]
 df.drop(columns=['Δt', 'pitch', 'ideal pitch', 'heading', 'ideal heading', 'aspect angle'], inplace=True)
 df = df.iloc[26:-1]
 
@@ -95,6 +95,9 @@ system_content = f"""You are a flight instructor training new Air Force trainee 
 user_content_qn = f"""Given the following flight data from an enemy tracking training flight of a pilot in a {aircraft_type}, generate detailed and specific feedback for the trainee pilot, telling them how exactly to execute your feedback. As the syllabus has already been determined, do not suggest training scenarios or self-directed practice. Your feedback should be encouraging and motivational, acknowledging what the pilot did well. The feedback should answer the 3 following questions: 'What are my goals? (keep the response to this question to 25 words) How am I doing? How to improve?'. Keep your response to 150 words.
 
 {df_to_csv}
+Notes on the data:
+- Distance is in metres
+- Positive pitch deviation means the trainee is pointing too high/above the enemy and should pitch down to re-center the target vertically. Positive heading deviation means the trainee is pointing too far right and should turn left to center the target horizontally.
 """
 
 llm_client = ChatGoogleGenerativeAI(
