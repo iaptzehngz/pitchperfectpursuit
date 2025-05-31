@@ -1667,3 +1667,355 @@ Focus on immediate and coordinated control inputs. When the enemy initiates a tu
 
 
 
+at 2025-05-30 19:00:42.096474, response content:
+            
+Alright, Trainee, let's go over your performance.
+
+**What are my goals?**
+Maintain optimal tracking distance, precisely center the target, and manage your airspeed to avoid stalls.
+
+**How am I doing?**
+You successfully avoided a crash, demonstrating basic aircraft control. However, your distance to the enemy aircraft steadily increased, and you consistently lost visual contact due to significant pitch and heading deviations, often experiencing stall warnings.
+
+**How to improve?**
+To improve, you must actively manage your throttle inputs to control your airspeed, especially during turns. When maneuvering with the centre stick, make smooth, smaller corrections. Adjust your throttle to maintain energy and avoid exceeding the aircraft's Angle of Attack (AoA) limits – the angle of the wing relative to the oncoming air – to prevent stalls.
+
+
+
+at 2025-05-30 19:01:10.734422, response content:
+            
+Alright, Trainee! That was your first time in the simulator, and you handled it well without a single crash, which is a fantastic start and shows great potential. Let's break down your performance.
+
+**What are my goals?**
+Your goal is to maintain consistent visual contact with the enemy aircraft by accurately centering it both vertically and horizontally.
+
+**How am I doing?**
+You've maintained flight without crashing, which is crucial. However, you frequently lost sight of the enemy due to large heading deviations, and encountered multiple stall warnings, indicating aggressive pitch inputs and significant speed loss (Knots Indicated Airspeed or KIAS).
+
+**How to improve?**
+To improve, make smaller, smoother, and more coordinated control inputs with your centre stick, especially for heading. Focus on maintaining a consistent Knots Indicated Airspeed (KIAS) by making gentle pitch adjustments, rather than large, abrupt changes, to avoid stall warnings.
+
+
+
+at 2025-05-30 19:02:18.635683, response content:
+            
+Alright, Cadet, let's review your first tracking flight in the Cessna. It's completely normal to feel a bit overwhelmed on your first real-world flight, and you did a great job keeping the aircraft stable and not crashing, which is always paramount.
+
+**What are my goals?**
+Your primary goal is to maintain the enemy aircraft within your targeting reticle by minimizing both pitch and heading deviations.
+
+**How am I doing?**
+You consistently kept the enemy aircraft behind your plane, which is a good start. However, your large heading deviations frequently caused you to lose sight of the target.
+
+**How to improve?**
+To improve, focus on making smaller, more precise centre stick inputs for heading control. When the enemy is too far left (indicated by a negative heading deviation), apply gentle right stick pressure to smoothly bring the nose right and re-center the target. Avoid large, abrupt turns.
+
+
+
+at 2025-05-30 19:03:20.969853, response content:
+            
+Alright pilot, let's go over your performance. This was likely your first time flying a real plane, even if it's a simulator, and you did well to keep it in the air without crashing! That's a crucial first step.
+
+**What are my goals?**
+Your primary goal is to maintain constant visual contact with the enemy aircraft by precisely controlling your aircraft's pitch, heading, and distance.
+
+**How am I doing?**
+You maintained a consistent throttle setting throughout the flight, which is a good baseline for stability. However, you frequently lost sight of the enemy due to large pitch and heading deviations, often resulting in stall warnings.
+
+**How to improve?**
+Focus on smoother, smaller control inputs. If the enemy target appears *above* your current view (meaning you are pointing too low), gently pull the centre stick *back* to pitch up. If it appears *below* your current view (meaning you are pointing too high), gently push the stick *forward* to pitch down. Avoid large, abrupt stick movements, especially pulling back too hard, which caused your stall warnings and significant airspeed loss. To correct horizontal position, use coordinated stick and rudder: if the enemy is to your *left* (negative heading deviation), push the stick *right* and apply *right* rudder to turn right. Simultaneously, manage your distance by adjusting throttle: push the throttle lever *forward* to increase speed and close on the enemy, or pull it *back* to slow down and maintain separation. Anticipate enemy movements to make proactive, not reactive, corrections.
+
+
+
+at 2025-05-30 19:03:53.460747, response content:
+            
+Alright, Airman, excellent job staying calm and avoiding a crash during this challenging tracking exercise. You maintained a consistent throttle input, which is a great start for control stability.
+
+**What are my goals?**
+Your goal is to maintain continuous visual contact, accurately tracking the enemy aircraft by minimizing both pitch and heading deviations.
+
+**How am I doing?**
+You are consistently falling behind the enemy and frequently losing visual contact, primarily due to large horizontal (heading) deviations.
+
+**How to improve?**
+To regain control and track effectively, immediately apply full throttle (engine power, ratio 1.0) to increase your speed (KIAS). Simultaneously, when the enemy drifts left (negative heading deviation, meaning they are to your left), smoothly apply right rudder and right stick to turn the aircraft right in a coordinated turn (using stick and rudder together for smooth, efficient turns) and recenter them. This will help you close the distance and avoid future stall warnings by maintaining sufficient airspeed and control.
+
+
+
+at 2025-05-30 19:04:58.969595, response content:
+            
+Alright, Trainee, great job getting in the simulator today! It's your first time flying a real plane, even if it's a simulation, and you kept the aircraft under control throughout the entire flight and didn't crash, which is commendable. That shows good foundational stability, so well done!
+
+**What are my goals?**
+Your primary goal is to maintain a stable distance and keep the enemy aircraft precisely centered in your view, using coordinated pitch and heading adjustments.
+
+**How am I doing?**
+You maintained aircraft control throughout the flight, which is excellent for your first time. However, you consistently lost sight of the enemy aircraft, both vertically and horizontally, and the distance between you increased significantly. You also encountered several stall warnings.
+
+**How to improve?**
+To improve your tracking and maintain proximity, you must actively use the throttle. When the enemy aircraft pulls away, increase throttle (push the lever forward, located to your left) to gain speed and close the distance. Simultaneously, make smaller, smoother inputs with your centre stick to keep the target centered: use gentle pitch adjustments (pull/push stick) for vertical alignment, and for horizontal tracking, apply gentle roll and twist the stick for rudder, ensuring coordinated turns to smoothly follow the enemy.
+
+
+
+at 2025-05-30 19:05:31.737058, response content:
+            
+Alright, Trainee, let's go over your performance on this tracking exercise. Remember, this is how we learn and get better!
+
+**What are my goals?**
+Your primary goal is to maintain constant visual tracking of the enemy aircraft, controlling both distance and relative position precisely.
+
+**How am I doing?**
+Great job keeping the aircraft airborne and avoiding any crashes! However, you're consistently falling behind the enemy, with your distance increasing throughout the flight. This led to significant pitch and heading deviations—meaning you were pointing too high/low or left/right of the target—often losing sight and triggering multiple stall warnings, which indicate your wing was about to lose lift.
+
+**How to improve?**
+Your key area to improve is active power management. You kept your throttle at 0.5, which isn't enough to catch up. When behind, smoothly advance throttle to increase your KIAS (Knots Indicated Airspeed, your displayed speed). Continuously adjust power to maintain your desired tracking distance and use precise center stick inputs to prevent excessive pitch changes and avoid future stall warnings.
+
+
+
+at 2025-05-30 19:05:52.021268, response content:
+            
+Alright, Trainee, let's go over your performance in the simulator. You're doing well and showing great potential.
+
+**What are my goals?**
+Your primary goals are to maintain precise distance and alignment with the enemy aircraft, avoiding stalls by effectively managing your aircraft's energy.
+
+**How am I doing?**
+You demonstrated excellent recovery instincts by avoiding a crash despite multiple 'stall warnings' (where the wing loses lift), which is commendable. However, you consistently fell behind the enemy and struggled to maintain stable vertical and horizontal tracking.
+
+**How to improve?**
+Your main area for improvement is active energy management. Your constant 'throttle' (power setting) limited your ability to adjust speed. To improve tracking and prevent future stalls – due to too high an 'Angle of Attack' (AoA) at low 'KIAS' (Knots Indicated Airspeed) – you must coordinate your throttle with your 'centre stick' (pitch) inputs. Increase throttle to gain KIAS and close distance, or prevent stalls when pitching up. This coordination will allow you to precisely correct your 'pitch deviation' (vertical alignment) and 'heading deviation' (horizontal alignment) to re-center the target.
+
+
+
+at 2025-05-30 19:08:03.079223, response content:
+            
+Alright, Trainee, let's go over your performance. Remember, this is about learning, and you're doing great for your first time in the air!
+
+**What are my goals?**
+Your primary goal is to maintain constant visual contact with the enemy aircraft by precisely matching its flight path.
+
+**How am I doing?**
+You demonstrated good stability before the enemy initiated its turn, but you lost sight of the enemy aircraft early in its maneuver due to a significant delay in applying flight control inputs.
+
+**How to improve?**
+To improve, you must react *immediately* to target movement. When the enemy begins to turn, smoothly apply coordinated centre stick roll input in the *same direction* as the enemy's turn to match their bank, and simultaneously use appropriate pitch input to keep them vertically centered. Also, remember to manage your throttle to maintain a suitable airspeed for maneuvering and staying with the target.
+
+
+
+at 2025-05-30 19:08:30.843133, response content:
+            
+Alright recruit, let's go over your performance. It's your first time in a real plane, and you did a solid job maintaining basic flight control and didn't crash, which is a great start!
+
+**What are my goals?**
+To accurately track the enemy aircraft by maintaining correct relative position, controlling pitch, heading, and airspeed.
+
+**How am I doing?**
+You maintained control and avoided a crash, which is commendable. However, you consistently lost sight of the enemy aircraft, particularly during its right turn, indicating difficulty with accurate tracking.
+
+**How to improve?**
+When the enemy aircraft initiated its right turn, your aircraft was banking left. To follow a right turn, you must apply *right* roll input by pushing the centre stick to the *right*. Coordinate this with appropriate pitch input (pulling the stick *back*) to maintain the target vertically centered, while managing throttle to control airspeed and avoid stalls.
+
+
+
+at 2025-05-30 19:09:32.135909, response content:
+            
+Alright recruit, great job getting into the simulator and taking on this challenge! This is likely your first time flying a real plane, even simulated, so let's break down your performance.
+
+**What are my goals?**
+Your goal is to consistently maintain the enemy aircraft within your visual sight picture by precisely matching its flight path, while safely managing your aircraft's energy.
+
+**How am I doing?**
+You started well but struggled to maintain visual contact during the enemy's right turn, leading to significant heading and pitch deviations and several dangerous stall warnings.
+
+**How to improve?**
+To improve, focus on proactive control inputs. When the enemy turns, apply more assertive **roll** input with your **centre stick** (push the stick right) to match their turn. **Roll** is the aircraft's rotation around its nose-to-tail axis. Simultaneously, adjust your **throttle** (push the throttle lever forward) to maintain **airspeed** and prevent falling behind, especially when turning. If you hear the **stall warning** (an alert indicating the wing is losing lift due to high **angle of attack**), immediately reduce back pressure on the stick to decrease your **angle of attack** and regain airspeed.
+
+
+
+at 2025-05-30 19:10:16.050459, response content:
+            
+Alright, Trainee, great job getting into the simulator for your first flight! It's completely normal to feel overwhelmed, but you're doing well.
+
+**What are my goals?**
+Your goal is to maintain constant visual contact with the enemy aircraft by precisely matching its maneuvers and staying within tracking parameters.
+
+**How am I doing?**
+You maintained a stable flight path initially and avoided any dangerous stalls or crashes, which is commendable for your first time. However, you struggled significantly with reacting to the enemy's right turn, resulting in large pitch and heading deviations, causing you to lose sight of the target.
+
+**How to improve?**
+To improve, you must react more quickly to the enemy's maneuvers. When the enemy aircraft begins to turn, immediately apply a corresponding roll input with your centre stick in the *same direction*. For a right turn, push the stick to the *right* to bank your aircraft. Banking is tilting your wings to initiate a turn. Coordinate this roll with gentle back pressure on the stick (pitch up) to keep the enemy centered vertically in your view as you turn. This will help maintain visual contact and stay on target.
+
+
+
+at 2025-05-30 19:11:33.407319, response content:
+            
+Alright, Trainee, let's go over your performance on this tracking exercise. Remember, this is likely your first time handling an aircraft, and you did well staying focused and not crashing, which is always the priority!
+
+Before we dive into the feedback, let's clarify a couple of terms:
+
+*   **Coordinated Control Inputs:** This refers to using your centre stick (for pitch and roll) and rudder pedals (to control yaw, which aligns the nose) smoothly together to execute a turn without slipping or skidding.
+*   **Sideslip:** This occurs when your aircraft is moving sideways relative to the airflow, often due to uncoordinated turns. A large sideslip angle indicates poor coordination.
+
+Now, let's review your flight performance:
+
+**What are my goals?**
+Your goal is to maintain constant visual contact with the enemy aircraft by precisely matching its flight path, minimizing both pitch and heading deviations.
+
+**How am I doing?**
+You did well in maintaining a consistent throttle setting for much of the flight, but you consistently lost sight of the enemy aircraft due to significant and delayed deviations in both pitch and heading, leading to a stall warning.
+
+**How to improve?**
+To improve, you must anticipate and apply timely, coordinated control inputs. When the enemy began its right turn at 4.59s, you needed to immediately apply right roll with your centre stick while adjusting pitch to maintain vertical alignment, and crucially, increase throttle to manage airspeed and sustain the turn, preventing the significant sideslip and stall warning observed.
+
+
+
+at 2025-05-30 19:12:02.469958, response content:
+            
+Alright, Trainee! That was your first time in the simulator, and you did well in maintaining a general direction and keeping the aircraft flying safely. Let's break down your performance.
+
+**What are my goals?**
+Your primary goal is to maintain the enemy aircraft precisely centered in your sights throughout its maneuvers, minimizing both pitch and heading deviations.
+
+**How am I doing?**
+You demonstrated good initial tracking before the enemy maneuvered, but significantly struggled with lateral control, failing to match the enemy's right turn and losing sight.
+
+**How to improve?**
+To improve, you must proactively apply **right roll input** with the centre stick as soon as the enemy begins its right turn. Continuously adjust this right roll by pushing the stick to the right or left to precisely match its turn rate, keeping its heading centered in your view on the G1000 display.
+
+
+
+at 2025-05-30 19:12:30.219759, response content:
+            
+Alright, pilot! Great job getting us airborne and starting off smoothly. You maintained a good initial flight path, which is a solid foundation.
+
+**What are my goals?**
+Your goal is to maintain precise visual tracking of the enemy, minimizing pitch and heading deviations to stay within sight.
+
+**How am I doing?**
+You started well with stable flight, but frequently lost sight of the enemy due to significant pitch and heading deviations, especially once they initiated their right turn.
+
+**How to improve?**
+To improve, you must apply timely and coordinated centre stick inputs: when the enemy turns right, immediately apply *right* stick (positive roll ratio) to match their bank, and pull *back* on the stick (positive pitch ratio) to counter any vertical separation, ensuring you stay in sight.
+
+
+
+at 2025-05-30 19:13:08.077190, response content:
+            
+Alright, Trainee! First flight in the simulator, that's a big step, and you did well in maintaining control of the aircraft throughout the flight.
+
+**What are my goals?**
+Your primary goal is to actively use flight controls to maintain visual contact and minimize pitch and heading deviations, while closing the distance to the enemy.
+
+**How am I doing?**
+You maintained stable power throughout the flight, avoiding any stalls, which is a good foundational start. However, you consistently lost sight of the enemy aircraft after they initiated their turn around the 4.5-second mark, failing to apply timely control inputs to follow the maneuver, leading to a significant increase in distance.
+
+**How to improve?**
+To improve, when the enemy initiates a turn, you must immediately apply coordinated control inputs: for a right turn, roll *right* by smoothly pushing the centre stick to the right. Concurrently, use pitch control (pulling or pushing the stick forward/back) to keep the target centered vertically within your view.
+
+
+
+at 2025-05-30 19:13:33.225541, response content:
+            
+Alright recruit, great job getting in the simulator! It's your first time flying a real plane, albeit simulated, and you handled it without crashing, which is an excellent start. That shows good basic control.
+
+**What are my goals?**
+Your primary goals are to maintain visual contact and control your distance to effectively track the enemy aircraft.
+
+**How am I doing?**
+You handled the aircraft well without any crashes, which is excellent for your first flight. However, you struggled to maintain sight of the enemy, leading to large pitch and heading deviations and a significant increase in tracking distance.
+
+**How to improve?**
+To improve, you must actively manage your **throttle**. You kept the throttle constant at 50%, which caused the distance to the enemy to continuously grow. Push the throttle forward to increase your speed and close the distance, or pull it back to decrease speed if you're closing too fast. This dynamic throttle control, combined with coordinated **centre stick** inputs for **pitch** (nose up/down) and **roll** (wing tilt), is crucial for maintaining a stable tracking range and keeping the enemy centered in your view.
+
+
+
+at 2025-05-30 19:14:00.255602, response content:
+            
+Alright, Trainee, let's go over your performance. Remember, this simulator is designed to prepare you for the real deal, and every flight is a learning opportunity. You did well to maintain control of the aircraft throughout the flight and avoid a crash, which is paramount.
+
+**What are my goals?**
+Your primary goals are to maintain continuous visual contact with the enemy aircraft and to precisely match its flight path, ensuring you stay within optimal tracking parameters.
+
+**How am I doing?**
+You frequently lost sight of the enemy aircraft, especially during its right turn, due to significant deviations in both your pitch and heading, indicating you struggled to match its maneuver.
+
+**How to improve?**
+To improve, anticipate the enemy's turn earlier; as it begins to bank right, apply smooth, coordinated *right centre stick roll input* (pushing the stick right) to match its bank angle, and simultaneously use *aft centre stick pitch input* (pulling the stick back) to maintain vertical alignment. Crucially, adjust your *throttle inputs* (pushing it forward to gain speed) to manage airspeed and close the rapidly increasing distance, rather than keeping it constant, which will help you maintain a tighter track and avoid stall warnings.
+
+
+
+at 2025-05-31 15:55:50.493386, response content:
+            
+Alright, Cadet, great job staying with it and avoiding any incidents in what was likely your first time in a real plane simulator! That's a crucial first step.
+
+**What are my goals?**
+Your primary goal is to maintain constant visual contact with the enemy, precisely matching its flight path and keeping your distance stable.
+
+**How am I doing?**
+While you maintained control, you quickly lost sight of the enemy during its turn, indicated by significant pitch and heading deviations. This resulted in your distance rapidly increasing.
+
+**How to improve?**
+When the enemy begins its turn, immediately match its **bank angle** (aircraft tilt) by rolling your **centre stick** in the same direction. Simultaneously, use small, precise **pitch** inputs (forward/back on the stick) to keep the target centered vertically. Finally, adjust your **throttle** (power setting) to control your **KIAS** (Knots Indicated Airspeed, your speed), preventing the distance from growing so quickly. Focus on smooth, coordinated control inputs.
+
+
+
+at 2025-05-31 15:57:04.813168, response content:
+            
+Alright, pilot, let's break down that flight. You did a great job holding your position initially. That takes focus and precision.
+
+**What are my goals?**
+Your primary goal is to maintain continuous visual contact with the enemy aircraft by precisely matching its flight path, ensuring minimal pitch and heading deviation.
+
+**How am I doing?**
+You maintained good initial stability before the enemy maneuver. However, you lost sight of the enemy during its turn, indicating a delayed and overly aggressive reaction to the change in its flight path.
+
+**How to improve?**
+When tracking, anticipate enemy maneuvers and apply smooth, proportional centre stick inputs. For instance, as the enemy turns right, gently and progressively apply right roll (centre stick to the right) and back pressure (centre stick back) to initiate your own turn, simultaneously increasing throttle (push throttle forward) to maintain airspeed and energy, especially during a turn.
+
+
+
+at 2025-05-31 15:57:56.743932, response content:
+            
+Alright, Trainee, great job getting into the simulator today! This is your first step towards becoming a skilled pilot, and you're already showing potential.
+
+**What are my goals?**
+Your primary goal is to maintain constant visual contact and minimize your aircraft's pitch and heading deviations from the enemy.
+
+**How am I doing?**
+You maintained initial aircraft stability well. However, your primary challenge was the almost complete lack of centre stick control inputs during the enemy's manoeuvre, causing you to fall significantly behind and lose sight of the target.
+
+**How to improve?**
+To improve, you must actively use the centre stick from the very start. Continuously adjust your aircraft's pitch by pulling back on the stick to raise the nose (pitch up) or pushing forward to lower the nose (pitch down). Simultaneously, use the stick to roll your aircraft: push right to roll right and turn right, and push left to roll left and turn left. Your objective is to keep the enemy aircraft centered in your windscreen at all times, anticipating its movements with smooth, constant control inputs.
+
+
+
+at 2025-05-31 15:58:21.294130, response content:
+            
+Alright, Airman, that was a solid first flight in the simulator! You kept the aircraft in the air and consistently stayed behind the enemy, which is a great starting point for tracking. We'll build on that.
+
+**What are my goals?**
+Your primary goal is to maintain continuous visual contact with the enemy, effectively managing your flight path to prevent losing sight or stalling.
+
+**How am I doing?**
+While you managed to stay behind the enemy throughout, you frequently lost visual contact as the distance grew excessively, indicated by the 'lost sight of enemy' grading. This was often accompanied by stall warnings (when your wing's angle of attack is too high), suggesting uncoordinated and abrupt control inputs, especially a lack of throttle management.
+
+**How to improve?**
+To improve, focus on integrating throttle management with smoother, coordinated stick inputs. Actively use your throttle (engine power), pushing it forward when the enemy turns to maintain your Kias (Knots Indicated Airspeed) and energy. Simultaneously, make smaller, gentle adjustments on the centre stick for pitch (nose up/down) and roll (wing tilt), always using your rudder pedals to keep the sideslip angle (sideways movement) near zero. This precise control will maintain target alignment and prevent stall warnings.
+
+
+
+at 2025-05-31 15:59:01.365626, response content:
+            
+Alright, Trainee, let's go over your performance on this tracking exercise. You've taken the first step in flying, and that's a big accomplishment!
+
+**What are my goals?**
+Your primary goal is to maintain sight and a consistent tracking position behind the enemy aircraft throughout its maneuvers.
+
+**How am I doing?**
+You maintained control of the aircraft and avoided a crash, which is commendable for your first time flying a real plane. However, you struggled significantly with tracking the enemy, especially during its right turn, resulting in a complete loss of sight and a large increase in distance.
+
+**How to improve?**
+When the enemy initiates a turn, you must proactively apply smooth right roll input with the centre stick to match their bank angle. This means pushing the stick to the *right*. Simultaneously, apply appropriate **back pressure** (pulling the stick back) to maintain your pitch and prevent falling below the target. Avoid excessive stick inputs, especially large pitch changes that triggered **stall warnings** (an alert indicating insufficient lift), which can lead to losing control. Focus on small, precise corrections to keep the enemy centered.
+
+
+

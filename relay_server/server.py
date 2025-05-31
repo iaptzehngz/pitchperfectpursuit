@@ -2,7 +2,7 @@ import time
 from datetime import datetime
 import os
 import socket
-import pickle
+import json
 import numpy as np # seems like I need this for one of the variables streamed from my X-Plane plugin
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -17,13 +17,16 @@ HOST = "127.0.0.1"
 PORT = 6969
 
 values = []
+manoeuvre_description = None
+#manoeuvre_start_times = []
+aircraft_type = None
+crashed = 'trainee did not crash the plane'
 
 wd = os.path.dirname(os.path.realpath(__file__))
 os.chdir(wd)
 
 date_time = datetime.now()
 str_date_time = date_time.strftime("%d-%m-%Y %H%M%S")
-
 values_and_plots_path = 'values_and_plots/' + str_date_time + "/"
 os.mkdir(values_and_plots_path)
 
@@ -37,27 +40,30 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     with conn:
         print(f"Connected by {addr}")
         while True:
-            data = pickle.loads(conn.recv(1024))
-            print(data)
-            if data == 'stop':
+            data = json.loads(conn.recv(1024).decode('utf-8'))
+            if data['stream'] == 'variables':
+                print(data['data'])
+                values.append(data['data'])
+            elif data['stream'] == 'manoeuvre':
+                manoeuvre_description = data['data']
+            elif data['stream'] == 'stop':
+                if data['data']:
+                    crashed = f'trainee crashed the plane at {data["data"]}'
                 break
-            values.append(data)
+            elif data['stream'] == 'aircraft type':
+                aircraft_type = data['data']
+            else:
+                raise KeyError(f"Unknown stream type")
 
-aircraft_type = values.pop(1)
 print(f'aircraft type is "{aircraft_type}"')
+print(f'manoeuvre description is "{manoeuvre_description}"')
 
-df = pd.DataFrame(values, columns=('t', 
-                                   'manoeuvre', 
-                                   'distance', 'aspect angle',
-                                   'pitch', 'ideal pitch', 'roll', 'heading', 'ideal heading', 
-                                   'angle of attack', 'sideslip angle',
-                                   'centre stick pitch ratio', 'centre stick roll ratio', 'rudder pedal ratio', 'throttle ratio', 
-                                   'kias', 
-                                   'stall warning', 'has crashed'))
-df['t'] = df['t'] - df.iloc[26]['t']
+df = pd.DataFrame(values)
+
+#df['t'] = df['t'] - df.iloc[26]['t']
 df['Δt'] = df['t'].diff()
 df= df.set_index('t')
-df['pitch dev'] = df['pitch'] - df['ideal pitch']
+df['pitch deviation'] = df['pitch'] - df['ideal pitch']
 df['heading deviation'] = df['heading'] - df['ideal heading']
 df['heading deviation'] = [hd - 360 if hd > 180 else hd + 360 if hd < -180 else hd for hd in df['heading deviation']]
 df['rate of change of distance'] = df['distance'].diff() / df['Δt']
@@ -68,8 +74,7 @@ df['in front of or behind enemy plane'] = ['behind' if aa < 90 else 'in front' f
 
 df['pitch deviation grade'] = ['visible' if abs(pdev) < 8 else 'lost sight' for pdev in df['pitch deviation']]
 df['heading deviation grade'] = ['visible' if abs(hdev) < 30 else 'lost sight' for hdev in df['heading deviation']]
-df = df.iloc[26:-1]
-df.to_csv(values_and_plots_path + 'values.csv')
+#df = df.iloc[26:-1]
 
 # prob pointless to include rates in wanted_vars in the end cus the kiddos can see trends frm graphs
 wanted_vars = ['pitch deviation', 'heading deviation', 'distance', 'kias', 'pitch', 'angle of attack', 'sideslip angle', 'roll', 'centre stick pitch ratio', 'centre stick roll ratio', 'rudder pedal ratio', 'throttle ratio']
@@ -78,12 +83,14 @@ plt.savefig(values_and_plots_path + 'plot.jpg')
 
 df = df.round(2)
 df.index = df.index.round(2)
+df.to_csv(values_and_plots_path + 'values.csv')
 print(df, df.columns)
 
-#raise
+raise
 
 df.drop(columns=[
     'Δt', 
+    'manoeuvre',
     'sideslip angle', 
     'pitch', 'ideal pitch', 'heading', 'ideal heading', 
     'aspect angle', 

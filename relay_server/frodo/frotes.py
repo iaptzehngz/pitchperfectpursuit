@@ -28,12 +28,12 @@ df['distance'] = df['distance'].str[:-17]
 #df['heading deviation grade'] = 
 
 df.drop(columns=['Δt', 
-                 'ideal pitch', 'ideal heading', 
-                 'pitch', 'heading', 'roll', 
+#                 'ideal pitch', 'ideal heading', 
+#                 'pitch', 'heading', 'roll', 
 #                 'manoeuvre',
-                 'aspect angle', 'sideslip angle', 
+#                 'aspect angle', 'sideslip angle', 
 #                 'centre stick roll ratio', 'centre stick pitch ratio', 
-                 'pitch deviation grade', 'heading deviation grade'
+#                 'pitch deviation grade', 'heading deviation grade'
                  ], inplace=True)
 df=df.iloc[::3]
 print(df.head(), df.columns, sep='\n'*2)
@@ -45,8 +45,8 @@ user_content_qn = f"""Given the following flight data from an enemy tracking tra
 
 {df_to_csv}
 Notes on the data:
-- Distance is in metres
-- Pitch and heading deviations are in degrees and are for you to assess the trainee's performance in tracking the enemy aircraft and are unavailable to trainees.
+- Distance is in metres.
+- Pitch and heading deviations are in degrees and are unavailable to trainees.
 - Positive pitch deviation means the trainee is pointing too high/above the enemy and should pitch down to re-center the target vertically. Positive heading deviation means the trainee is pointing too far right and should turn left to center the target horizontally.
 - Trainee would lose sight of the enemy plane if the absolute value of the pitch deviation is greater than 8 degrees and the absolute value of the heading deviation is greater than 30 degrees.
 """

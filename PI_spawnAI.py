@@ -2,15 +2,12 @@ from XPPython3 import xp
 import math
 import numpy as np
 import socket
-import pickle
+import json
 
 HOST = '127.0.0.1'
 PORT = 6969
-try:
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((HOST, PORT))
-except ConnectionRefusedError:
-    xp.log('Please ensure relay server is listening before starting X-Plane.')
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.connect((HOST, PORT))
 
 rad_to_deg = 180/math.pi
 xz_normal = np.array((0, 1, 0))
@@ -38,22 +35,26 @@ class PythonInterface:
         self.sideslip_dataRef = None
         self.stall_warning_dataRef = None
         self.has_crashed_dataRef = None
-
         self.ai_plane = None
-        self.manoeuvre = 'before enemy aircraft starts manoeuvre'
-        self.loop_count = 0
-#        self.first_run = True
-        self.first_elapsedTime = None
-        self.manoeuvre_started = False
-        self.yoke_reset = False
-#        self.elapsed_time = 0
         
         self.spawn_flight_loop = None
-        self.straight_level_flight_loop = None
+        self.elapsed_time_flight_loop = None
+        self.straight_flight_loop = None
+        self.bank_ai_flight_loop = None
         self.report_flight_loop = None
+
+        self.loop_count = 0
+        self.first_elapsedTime = 0.0
+        self.elapsed_time = 0.0
+
+        # manoeuvre details
+        self.manoeuvre = 'right bank'
+        self.manoeuvre_roll = 30 / rad_to_deg
+        self.start_time = 5
+        self.end_time = 20
         
     def XPluginStart(self):
-        return "PI_spawnAI", "xppython3.spawnAI", "Spawn AI Aircraft"
+        return "PI_stshmybae", "xppython3.ilovedsta", "Spawn aircraft and stream data"
     
     def XPluginEnable(self):
         override_ai_autopilot(plane_index=1)
@@ -91,35 +92,44 @@ class PythonInterface:
                               multiplayer_plane_index=1)
         self.spawn_flight_loop = xp.createFlightLoop(self.spawnMe)
         xp.scheduleFlightLoop(self.spawn_flight_loop, -1)
-        self.straight_level_flight_loop = xp.createFlightLoop(self.straight_level)
-        xp.scheduleFlightLoop(self.straight_level_flight_loop, -1)
-        self.manoeuvre_flight_loop = xp.createFlightLoop(self.schedule_manoeuvre)
-        xp.scheduleFlightLoop(self.manoeuvre_flight_loop, -1)
-#        self.makeshift_pitch_flight_loop = xp.createFlightLoop(self.makeshift_pitch)
-#        xp.scheduleFlightLoop(self.makeshift_pitch_flight_loop, -1)
-#        self.makeshift_bank_flight_loop = xp.createFlightLoop(self.makeshift_bank)
-#        xp.scheduleFlightLoop(self.makeshift_bank_flight_loop, -1)
+        self.elapsed_time_flight_loop = xp.createFlightLoop(self.elapsedTime)
+        xp.scheduleFlightLoop(self.elapsed_time_flight_loop, -1)
+#        self.straight_flight_loop = xp.createFlightLoop(self.straight)
+#        xp.scheduleFlightLoop(self.straight_flight_loop, -1)
+        self.bank_ai_flight_loop = xp.createFlightLoop(self.rollAI)
+        xp.scheduleFlightLoop(self.bank_ai_flight_loop, -1)
         self.report_flight_loop = xp.createFlightLoop(self.reportVars)
         xp.scheduleFlightLoop(self.report_flight_loop, -1)
         return 1
     
     def XPluginStop(self):
-        sock.sendall(pickle.dumps('stop'))
+        sock.send(json.dumps({
+            'stream': 'stop',
+            'data': None
+            }).encode('utf-8'))
         sock.close()
 
     def XPluginDisable(self):
         pass
     
     def spawnMe(self, _sinceLast, _elapsedTime, _counter, _refcon):
-        report_aircraft_type()
+        sock.send(json.dumps({
+            'stream': "aircraft type",
+            'data': xp.getDatas(xp.findDataRef('sim/aircraft/view/acf_descrip'))
+            }).encode('utf-8'))
+        sock.send(json.dumps({
+            'stream': 'manoeuvre',
+            'data': f'enemy aircraft executing {self.manoeuvre} from {self.start_time} to {self.end_time} seconds'
+            }).encode('utf-8'))
         
         distance_from_ai = 400
 
         ai_heading = self.ai_plane.heading
+        ai_heading_rad = ai_heading / rad_to_deg
 
         ai_x, ai_y, ai_z = self.ai_plane.position
-        shifted_x = ai_x - distance_from_ai * math.sin(math.radians(ai_heading))
-        shifted_z = ai_z + distance_from_ai * math.cos(math.radians(ai_heading))
+        shifted_x = ai_x - distance_from_ai * math.sin(ai_heading_rad)
+        shifted_z = ai_z + distance_from_ai * math.cos(ai_heading_rad)
         ai_lat, ai_long, ai_elevation = xp.localToWorld(shifted_x, ai_y, shifted_z)
 
         ai_speed = np.linalg.norm(self.ai_plane.velocity, ord=2)
@@ -128,70 +138,42 @@ class PythonInterface:
         xp.log(f'Placed user at latitude: {ai_lat}, longitude: {ai_long}, elevation: {ai_elevation} with heading: {ai_heading}, speed: {ai_speed}')
         return 0
         
-    def schedule_manoeuvre(self, sinceLast, elaspedTime, _counter, _refcon):
-        start_time = 7
-        yoke_end_time = 10
-        manoeuvre_end_time = 17
-        roll = True
-        pitch = True
-        roll_ratio = 0.3
-        pitch_ratio = 0.15
-        manoeuvre_description = 'enemy aircraft turning right'
-
-        if self.loop_count < 3:
+    def elapsedTime(self, _sinceLast, elapsedTime, _counter, _refcon):
+        if self.loop_count <= 2: # so elapsed time starts from the third loop
             self.loop_count += 1
-            self.first_elapsedTime = elaspedTime
-            xp.log(f'first elapsed time: {self.first_elapsedTime}')
+            self.first_elapsedTime = elapsedTime
             return -1
-        
-        elapsed_time = elaspedTime - self.first_elapsedTime
-
-        if elapsed_time > start_time and not self.manoeuvre_started:
-            self.manoeuvre = manoeuvre_description
-            xp.scheduleFlightLoop(self.straight_level_flight_loop, 0)
-            self.manoeuvre_started = True
-            if roll and pitch:
-                self.ai_plane.yoke_roll_ratio = roll_ratio
-                self.ai_plane.yoke_pitch_ratio = pitch_ratio
-                xp.log(f'at time {elapsed_time} ai yoke roll ratio set to {self.ai_plane.yoke_roll_ratio} and pitch ratio set to {self.ai_plane.yoke_pitch_ratio} and throttle ratio set to {self.ai_plane.throttle_ratio}')
-            elif roll:
-                self.ai_plane.yoke_roll_ratio = roll_ratio
-                xp.log(f'at time {elapsed_time} ai yoke roll ratio set to {self.ai_plane.yoke_roll_ratio}')
-            elif pitch:
-                self.ai_plane.yoke_pitch_ratio = pitch_ratio
-                xp.log(f'at time {elapsed_time} ai yoke pitch ratio set to {self.ai_plane.yoke_pitch_ratio}')
-            else:
-                xp.log('uh so what do you want to change???')
-        elif elapsed_time > yoke_end_time and not self.yoke_reset:
-            self.yoke_reset = True
-            self.ai_plane.yoke_roll_ratio = 0
-            if pitch and not roll:
-                self.ai_plane.yoke_pitch_ratio = 0
-            xp.log(f'at time {elapsed_time} ai yoke roll ratio set to {self.ai_plane.yoke_roll_ratio} and pitch ratio set to {self.ai_plane.yoke_pitch_ratio} and throttle ratio set to {self.ai_plane.throttle_ratio}')
-        elif elapsed_time > manoeuvre_end_time:
-            self.ai_plane.yoke_pitch_ratio = 0
-            self.manoeuvre = 'enemy aircraft finished manoeuvre'
-            self.manoeuvre_started = False
-            self.yoke_reset = False
-            self.loop_count = 0
-            self.first_elapsedTime = None
-            xp.scheduleFlightLoop(self.straight_level_flight_loop, -1)
-            xp.log(f'at time {elapsed_time} schedule manoeuvre flight loop GONE and teardown done')
-            return 0
+        self.elapsed_time = elapsedTime - self.first_elapsedTime
         return -1
+    
+    def rollAI(self, _sinceLast, _elapsedTime, _counter, _refcon):
+        current_roll = self.ai_plane.roll / rad_to_deg
 
-    def straight_level(self, _sinceLast, elapsedTime, _counter, _refcon):
-#        if self.ai_plane.pitch > 3.5:
-#            self.ai_plane.yoke_pitch_ratio = 0.25
-#        elif self.ai_plane.pitch < 3.5:
-#            self.ai_plane.yoke_pitch_ratio = 0.3
+        if self.elapsed_time > self.start_time and self.elapsed_time < self.end_time:
+            difference = current_roll - self.manoeuvre_roll
+            self.ai_plane.yoke_roll_ratio = math.tanh(2 * difference) * -1
+            return 0.1
+                
+        self.ai_plane.yoke_roll_ratio = math.tanh(2 * current_roll) * -1
 
-        if self.ai_plane.roll > 0:
-            self.ai_plane.yoke_roll_ratio = -1 * self.ai_plane.roll/90
-        else:
-            self.ai_plane.yoke_roll_ratio = 1 * self.ai_plane.roll/90
-        xp.log(f'at time {elapsedTime} ai yoke roll ratio set to {self.ai_plane.yoke_roll_ratio}')
         return 0.1
+    
+    def pitchAI(self, _sinceLast, _elapsedTime, _counter, _refcon):
+        vx, vy, vz = self.ai_plane.velocity
+        xp.log(f'at time {self.elapsed_time}, ai plane vy is {vy}')
+
+        if vy > 0:
+            self.ai_plane.yoke_pitch_ratio = 69
+
+        return 0.1
+
+#    def straight(self, _sinceLast, elapsedTime, _counter, _refcon):
+#        if self.ai_plane.roll > 0:
+#            self.ai_plane.yoke_roll_ratio = -1 * self.ai_plane.roll/90
+#        else:
+#            self.ai_plane.yoke_roll_ratio = 1 * self.ai_plane.roll/90
+#        xp.log(f'at time {elapsedTime} ai yoke roll ratio set to {self.ai_plane.yoke_roll_ratio}')
+#        return 0.1
 
     def reportVars(self, _sinceLast, elapsedTime, _counter, _refcon):
         vector_diff = self.ai_plane.position - self.my_plane.position
@@ -209,17 +191,31 @@ class PythonInterface:
 
         ai_v_unit = self.ai_plane.velocity / np.linalg.norm(self.ai_plane.velocity, ord=2)
         aspect_angle = math.acos((np.dot(vector_diff_unit, ai_v_unit))) * rad_to_deg
-#        xp.log(f'aspect angle: {aspect_angle}')
 
-        sock.sendall((pickle.dumps((elapsedTime, 
-                                    self.manoeuvre, 
-                                    distance, aspect_angle,
-                                    self.my_plane.pitch, ideal_pitch, self.my_plane.roll, self.my_plane.heading, ideal_heading, 
-                                    xp.getDataf(self.aoa_dataRef), xp.getDataf(self.sideslip_dataRef),
-                                    self.my_plane.yoke_pitch_ratio, self.my_plane.yoke_roll_ratio, self.my_plane.yoke_heading_ratio, self.my_plane.throttle_ratio, 
-                                    xp.getDataf(self.ias_dataRef), 
-                                    xp.getDatai(self.stall_warning_dataRef), xp.getDatai(self.has_crashed_dataRef)))))
-        return 0.2
+        variables = {
+            't': self.elapsed_time,
+            'manoeuvre': self.manoeuvre,
+            'distance': distance, 
+            'aspect angle': aspect_angle,
+            'pitch': self.my_plane.pitch, 'ideal pitch': ideal_pitch, 'roll': self.my_plane.roll, 'heading': self.my_plane.heading, 'ideal heading': ideal_heading,
+            'angle of attack': xp.getDataf(self.aoa_dataRef), 'sideslip angle': xp.getDataf(self.sideslip_dataRef),
+            'centre stick pitch ratio': self.my_plane.yoke_pitch_ratio, 'centre stick roll ratio': self.my_plane.yoke_roll_ratio, 'rudder pedal ratio': self.my_plane.yoke_heading_ratio, 'throttle ratio': self.my_plane.throttle_ratio,
+            'kias': xp.getDataf(self.ias_dataRef),
+            'stall warning': xp.getDatai(self.stall_warning_dataRef)#, 'has crashed': xp.getDatai(self.has_crashed_dataRef)
+        }
+
+        sock.send(json.dumps({
+            'stream': 'variables',
+            'data': variables
+            }).encode('utf-8'))
+        
+        if xp.getDatai(self.has_crashed_dataRef):
+            sock.send(json.dumps({
+                'stream': 'stop',
+                'data': self.elapsed_time
+            }).encode('utf-8'))
+
+        return 0.25
 
 def override_ai_autopilot(plane_index=None):
     '''off the autopilot for the AI plane'''
@@ -229,10 +225,6 @@ def override_ai_autopilot(plane_index=None):
         xp.log(f"overrode plane of index {plane_index} autopilot")
     else:
         raise ValueError("provide plane_index")
-
-def report_aircraft_type():
-    aircraft_type = xp.getDatas(xp.findDataRef('sim/aircraft/view/acf_descrip'))
-    sock.sendall(pickle.dumps(aircraft_type))
 
 class Plane:
     '''Class to represent the position, velocity, orientation and primary controls of a plane in the simulator.'''
@@ -258,7 +250,7 @@ class Plane:
         self.multiplayer_plane_index = multiplayer_plane_index
 
     @property
-    def position(self):
+    def position(self): # cartesian coordinates in metres
         return np.array([xp.getDatad(self.x_dataRef),
                          xp.getDatad(self.y_dataRef),
                          xp.getDatad(self.z_dataRef)])
