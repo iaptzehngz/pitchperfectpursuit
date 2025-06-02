@@ -18,8 +18,7 @@ PORT = 6969
 
 values = []
 manoeuvre_description = None
-#manoeuvre_start_times = []
-aircraft_type = None
+aircraft_type = None # "Cessna 172 SP Skyhawk - 180HP - G1000"
 crashed = 'trainee did not crash the plane'
 
 wd = os.path.dirname(os.path.realpath(__file__))
@@ -57,7 +56,6 @@ print(f'manoeuvre description is "{manoeuvre_description}"')
 
 df = pd.DataFrame(values)
 
-#df['t'] = df['t'] - df.iloc[26]['t']
 df['Δt'] = df['t'].diff()
 df= df.set_index('t')
 df['pitch deviation'] = df['pitch'] - df['ideal pitch']
@@ -71,7 +69,7 @@ df['in front of or behind enemy plane'] = ['behind' if aa < 90 else 'in front' f
 
 df['pitch deviation grade'] = ['visible' if abs(pdev) < 8 else 'lost sight' for pdev in df['pitch deviation']]
 df['heading deviation grade'] = ['visible' if abs(hdev) < 30 else 'lost sight' for hdev in df['heading deviation']]
-#df = df.iloc[26:-1]
+df = df.iloc[1:-1]
 
 # prob pointless to include rates in wanted_vars in the end cus the kiddos can see trends frm graphs
 wanted_vars = ['pitch deviation', 'heading deviation', 'distance', 'kias', 'pitch', 'angle of attack', 'sideslip angle', 'roll', 'centre stick pitch ratio', 'centre stick roll ratio', 'rudder pedal ratio', 'throttle ratio']
