@@ -43,6 +43,7 @@ class PythonInterface:
         self.straight_flight_loop = None
         self.bank_ai_flight_loop = None
         self.pitch_ai_flight_loop = None
+        self.throttle_ai_flight_loop = None
         self.report_flight_loop = None
 
         self.loop_count = 0
@@ -102,6 +103,8 @@ class PythonInterface:
         xp.scheduleFlightLoop(self.bank_ai_flight_loop, -1)
         self.pitch_ai_flight_loop = xp.createFlightLoop(self.pitchAI)
         xp.scheduleFlightLoop(self.pitch_ai_flight_loop, -1)
+        self.throttle_ai_flight_loop = xp.createFlightLoop(self.thrustAI)
+        xp.scheduleFlightLoop(self.throttle_ai_flight_loop, -1)
         self.report_flight_loop = xp.createFlightLoop(self.reportVars)
         xp.scheduleFlightLoop(self.report_flight_loop, -1)
         return 1
@@ -166,6 +169,16 @@ class PythonInterface:
         vx, vy, vz = self.ai_plane.velocity
         self.ai_plane.yoke_pitch_ratio = math.tanh(vy / 20) * -1
         xp.log(f'at time {self.elapsed_time}, ai plane vy is {vy} and yoke pitch ratio is {self.ai_plane.yoke_pitch_ratio}')
+
+        return 1
+    
+    def thrustAI(self, _sinceLast, _elapsedTime, _counter, _refcon):
+        v_ai = np.linalg.norm(self.ai_plane.velocity, ord=2)
+        v_ai_knots = v_ai * 1.94384
+        target_v = 90
+        difference = v_ai_knots - target_v
+        self.ai_plane.throttle_ratio = math.tanh(difference / 5) * -0.5 + 0.5
+        xp.log(f'at time {self.elapsed_time}, ai plane velocity is {v_ai_knots} and throttle ratio is {self.ai_plane.throttle_ratio}')
 
         return 1
 
