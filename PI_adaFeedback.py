@@ -53,7 +53,7 @@ class PythonInterface:
         # manoeuvre details
         self.manoeuvre = 'right bank'
         self.manoeuvre_roll = 45 / rad_to_deg
-        self.start_time = 5
+        self.start_time = 10
         self.end_time = 20
         
     def XPluginStart(self):
@@ -97,8 +97,6 @@ class PythonInterface:
         xp.scheduleFlightLoop(self.spawn_flight_loop, -1)
         self.elapsed_time_flight_loop = xp.createFlightLoop(self.elapsedTime)
         xp.scheduleFlightLoop(self.elapsed_time_flight_loop, -1)
-#        self.straight_flight_loop = xp.createFlightLoop(self.straight)
-#        xp.scheduleFlightLoop(self.straight_flight_loop, -1)
         self.bank_ai_flight_loop = xp.createFlightLoop(self.rollAI)
         xp.scheduleFlightLoop(self.bank_ai_flight_loop, -1)
         self.pitch_ai_flight_loop = xp.createFlightLoop(self.pitchAI)
@@ -131,10 +129,16 @@ class PythonInterface:
         
         distance_from_ai = 400
 
+        # x and z coordinates of paya lebar air base runway 02 for terrain (lack of mountains)
+        ai_x = -10923
+        ai_y = 350
+        ai_z = 17443
+        self.ai_plane.position = (ai_x, ai_y, ai_z)
+
         ai_heading = self.ai_plane.heading
         ai_heading_rad = ai_heading / rad_to_deg
 
-        ai_x, ai_y, ai_z = self.ai_plane.position
+#        ai_x, ai_y, ai_z = self.ai_plane.position
         shifted_x = ai_x - distance_from_ai * math.sin(ai_heading_rad)
         shifted_z = ai_z + distance_from_ai * math.cos(ai_heading_rad)
         ai_lat, ai_long, ai_elevation = xp.localToWorld(shifted_x, ai_y, shifted_z)
@@ -163,12 +167,14 @@ class PythonInterface:
                 
         self.ai_plane.yoke_roll_ratio = math.tanh(current_roll) * -1
 
+        xp.log(f'at time {self.elapsed_time}, my position is {self.my_plane.position}')
+
         return 1
     
     def pitchAI(self, _sinceLast, _elapsedTime, _counter, _refcon):
         vx, vy, vz = self.ai_plane.velocity
         self.ai_plane.yoke_pitch_ratio = math.tanh(vy / 20) * -1
-        xp.log(f'at time {self.elapsed_time}, ai plane vy is {vy} and yoke pitch ratio is {self.ai_plane.yoke_pitch_ratio}')
+#        xp.log(f'at time {self.elapsed_time}, ai plane vy is {vy} and yoke pitch ratio is {self.ai_plane.yoke_pitch_ratio}')
 
         return 1
     
@@ -178,11 +184,13 @@ class PythonInterface:
         target_v = 90
         difference = v_ai_knots - target_v
         self.ai_plane.throttle_ratio = math.tanh(difference / 5) * -0.5 + 0.5
-        xp.log(f'at time {self.elapsed_time}, ai plane velocity is {v_ai_knots} and throttle ratio is {self.ai_plane.throttle_ratio}')
+#        xp.log(f'at time {self.elapsed_time}, ai plane velocity is {v_ai_knots} and throttle ratio is {self.ai_plane.throttle_ratio}')
 
         return 1
 
     def reportVars(self, _sinceLast, elapsedTime, _counter, _refcon):
+        if self.elapsed_time < 3.7: # the kias dataref stream starts at 0 knots at t = 0, stabilising around t = 4 s
+            return 0.5
         vector_diff = self.ai_plane.position - self.my_plane.position
         distance = float(np.linalg.norm(vector_diff, ord=2))
         vector_diff_unit = vector_diff / distance
@@ -325,9 +333,9 @@ class Plane:
     def throttle_ratio(self, ratio):
         self._set_datavf(self.throttle_ratio_dataRef, ratio)
 
-#    @position.setter
-#    def position(self, position):
-#        x, y, z = position
-#        xp.setDatad(self.x_dataRef, x)
-#        xp.setDatad(self.y_dataRef, y)
-#        xp.setDatad(self.z_dataRef, z)
+    @position.setter
+    def position(self, position):
+        x, y, z = position
+        xp.setDatad(self.x_dataRef, x)
+        xp.setDatad(self.y_dataRef, y)
+        xp.setDatad(self.z_dataRef, z)
