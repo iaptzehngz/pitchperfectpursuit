@@ -81,7 +81,7 @@ df.index = df.index.round(2)
 df.to_csv(values_and_plots_path + 'values.csv')
 print(df, df.columns)
 
-raise
+
 
 df.drop(columns=[
     'Δt', 
