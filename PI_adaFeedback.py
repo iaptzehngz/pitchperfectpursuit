@@ -51,7 +51,7 @@ class PythonInterface:
 
         # manoeuvre details
         self.manoeuvre = 'right bank'
-        self.manoeuvre_roll = 30 / rad_to_deg
+        self.manoeuvre_roll = 45 / rad_to_deg
         self.start_time = 5
         self.end_time = 20
         
@@ -156,28 +156,18 @@ class PythonInterface:
         if self.elapsed_time > self.start_time and self.elapsed_time < self.end_time:
             difference = current_roll - self.manoeuvre_roll
             self.ai_plane.yoke_roll_ratio = math.tanh(difference) * -1
-            return 0.1
+            return 0.5
                 
         self.ai_plane.yoke_roll_ratio = math.tanh(current_roll) * -1
 
-        return 0.1
+        return 1
     
     def pitchAI(self, _sinceLast, _elapsedTime, _counter, _refcon):
         vx, vy, vz = self.ai_plane.velocity
-        xp.log(f'at time {self.elapsed_time}, ai plane vy is {vy}')
+        self.ai_plane.yoke_pitch_ratio = math.tanh(vy / 20) * -1
+        xp.log(f'at time {self.elapsed_time}, ai plane vy is {vy} and yoke pitch ratio is {self.ai_plane.yoke_pitch_ratio}')
 
-        if vy > 0:
-            self.ai_plane.yoke_pitch_ratio = 69
-
-        return 0.1
-
-#    def straight(self, _sinceLast, elapsedTime, _counter, _refcon):
-#        if self.ai_plane.roll > 0:
-#            self.ai_plane.yoke_roll_ratio = -1 * self.ai_plane.roll/90
-#        else:
-#            self.ai_plane.yoke_roll_ratio = 1 * self.ai_plane.roll/90
-#        xp.log(f'at time {elapsedTime} ai yoke roll ratio set to {self.ai_plane.yoke_roll_ratio}')
-#        return 0.1
+        return 1
 
     def reportVars(self, _sinceLast, elapsedTime, _counter, _refcon):
         vector_diff = self.ai_plane.position - self.my_plane.position
@@ -219,7 +209,7 @@ class PythonInterface:
                 'data': self.elapsed_time
             }).encode('utf-8'))
 
-        return 0.25
+        return 0.3
 
 def override_ai_autopilot(plane_index=None):
     '''off the autopilot for the AI plane'''
