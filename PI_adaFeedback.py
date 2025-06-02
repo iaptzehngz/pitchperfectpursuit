@@ -113,6 +113,7 @@ class PythonInterface:
             'data': None
             }).encode('utf-8'))
         sock.close()
+        context.term()
 
     def XPluginDisable(self):
         pass

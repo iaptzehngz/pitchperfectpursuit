@@ -18,8 +18,7 @@ PORT = 6969
 
 values = []
 manoeuvre_description = None
-#manoeuvre_start_times = []
-aircraft_type = None
+aircraft_type = None # "Cessna 172 SP Skyhawk - 180HP - G1000"
 crashed = 'trainee did not crash the plane'
 
 wd = os.path.dirname(os.path.realpath(__file__))
