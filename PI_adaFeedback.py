@@ -1,13 +1,14 @@
 from XPPython3 import xp
 import math
 import numpy as np
-import socket
+import zmq
 import json
 
 HOST = '127.0.0.1'
 PORT = 6969
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect((HOST, PORT))
+context = zmq.Context()
+sock = context.socket(zmq.PUSH)
+sock.connect(f"tcp://{HOST}:{PORT}")
 
 rad_to_deg = 180/math.pi
 xz_normal = np.array((0, 1, 0))
@@ -41,6 +42,7 @@ class PythonInterface:
         self.elapsed_time_flight_loop = None
         self.straight_flight_loop = None
         self.bank_ai_flight_loop = None
+        self.pitch_ai_flight_loop = None
         self.report_flight_loop = None
 
         self.loop_count = 0
@@ -98,6 +100,8 @@ class PythonInterface:
 #        xp.scheduleFlightLoop(self.straight_flight_loop, -1)
         self.bank_ai_flight_loop = xp.createFlightLoop(self.rollAI)
         xp.scheduleFlightLoop(self.bank_ai_flight_loop, -1)
+        self.pitch_ai_flight_loop = xp.createFlightLoop(self.pitchAI)
+        xp.scheduleFlightLoop(self.pitch_ai_flight_loop, -1)
         self.report_flight_loop = xp.createFlightLoop(self.reportVars)
         xp.scheduleFlightLoop(self.report_flight_loop, -1)
         return 1
@@ -151,10 +155,10 @@ class PythonInterface:
 
         if self.elapsed_time > self.start_time and self.elapsed_time < self.end_time:
             difference = current_roll - self.manoeuvre_roll
-            self.ai_plane.yoke_roll_ratio = math.tanh(2 * difference) * -1
+            self.ai_plane.yoke_roll_ratio = math.tanh(difference) * -1
             return 0.1
                 
-        self.ai_plane.yoke_roll_ratio = math.tanh(2 * current_roll) * -1
+        self.ai_plane.yoke_roll_ratio = math.tanh(current_roll) * -1
 
         return 0.1
     

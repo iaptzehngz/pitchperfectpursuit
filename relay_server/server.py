@@ -1,7 +1,7 @@
 import time
 from datetime import datetime
 import os
-import socket
+import zmq
 import json
 import numpy as np # seems like I need this for one of the variables streamed from my X-Plane plugin
 import pandas as pd
@@ -33,27 +33,24 @@ os.mkdir(values_and_plots_path)
 GOOGLE_API_KEY = "AIzaSyDh7u2AuBEfk_O_IuhuA0A2wIw6pXczlfE"
 CHAT_HISTORY = []
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.bind((HOST, PORT))
-    s.listen()
-    conn, addr = s.accept()
-    with conn:
-        print(f"Connected by {addr}")
-        while True:
-            data = json.loads(conn.recv(1024).decode('utf-8'))
-            if data['stream'] == 'variables':
-                print(data['data'])
-                values.append(data['data'])
-            elif data['stream'] == 'manoeuvre':
-                manoeuvre_description = data['data']
-            elif data['stream'] == 'stop':
-                if data['data']:
-                    crashed = f'trainee crashed the plane at {data["data"]}'
-                break
-            elif data['stream'] == 'aircraft type':
-                aircraft_type = data['data']
-            else:
-                raise KeyError(f"Unknown stream type")
+with zmq.Context() as c:
+    sock = c.socket(zmq.PULL)
+    sock.bind(f'tcp://{HOST}:{PORT}')
+    while True:
+        data = json.loads(sock.recv().decode('utf-8'))
+        if data['stream'] == 'variables':
+            print(data['data'])
+            values.append(data['data'])
+        elif data['stream'] == 'manoeuvre':
+            manoeuvre_description = data['data']
+        elif data['stream'] == 'stop':
+            if data['data']:
+                crashed = f'trainee crashed the plane at {data["data"]}'
+            break
+        elif data['stream'] == 'aircraft type':
+            aircraft_type = data['data']
+        else:
+            raise KeyError(f"Unknown stream type")
 
 print(f'aircraft type is "{aircraft_type}"')
 print(f'manoeuvre description is "{manoeuvre_description}"')
