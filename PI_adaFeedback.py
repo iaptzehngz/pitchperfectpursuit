@@ -6,10 +6,11 @@ import zmq
 import json
 
 HOST = '127.0.0.1'
-PORT = 6969
+PORT_STREAM = 5555
+PORT_MANOEUVRE = 6666
 context = zmq.Context()
 sock = context.socket(zmq.PUSH)
-sock.connect(f"tcp://{HOST}:{PORT}")
+sock.connect(f"tcp://{HOST}:{PORT_STREAM}")
 
 rad_to_deg = 180/math.pi
 xz_normal = np.array((0, 1, 0))
@@ -54,15 +55,30 @@ class PythonInterface:
         self.first_elapsedTime = 0.0
         self.elapsed_time = 0.0
 
-        self.quit_elapsed_time = 40
+        self.quit_elapsed_time = 30
 
         # manoeuvre details
-        self.manoeuvre = 'right bank'
-        self.manoeuvre_roll = 45 / rad_to_deg
-        self.start_time = 10
-        self.end_time = 20
+        self.manoeuvre = None
+        self.manoeuvre_roll =  None #/ rad_to_deg
+        self.manoeuvre_vy = None
+        self.start_time = None
+        self.end_time = None
         
     def XPluginStart(self):
+        manoeuvres = (
+            ('straight and level flight', 0 / rad_to_deg, 0, 10, 20),
+            ('descend', 0 / rad_to_deg, -5, 10, 20),
+            ('climb', 0 / rad_to_deg, 5, 10, 20),
+            ('gentle right turn', 30 / rad_to_deg, 0, 10, 20),
+            ('gentle left turn', -30 / rad_to_deg, 0, 10, 20),
+            ('steep right turn', 45 / rad_to_deg, 0, 10, 20), # 90 deg turn
+            ('steep left turn', -45 / rad_to_deg, 0, 10, 20) # but this gave me an extra 10 deg??
+        )
+        with context.socket(zmq.PULL) as sock_manoeuvre:
+            sock_manoeuvre.bind(f"tcp://{HOST}:{PORT_MANOEUVRE}")
+            manoeuvre_no = sock_manoeuvre.recv_json()
+            xp.log(f'manoeuvre no. {manoeuvre_no} with flight parameters {manoeuvres[manoeuvre_no]}')
+            self.manoeuvre, self.manoeuvre_roll, self.manoeuvre_vy, self.start_time, self.end_time = manoeuvres[manoeuvre_no]
         return "PI_stshmybae", "xppython3.ilovedsta", "Spawn aircraft and stream data"
     
     def XPluginEnable(self):
@@ -104,7 +120,7 @@ class PythonInterface:
         self.elapsed_time_flight_loop = xp.createFlightLoop(self.elapsedTime)
         xp.scheduleFlightLoop(self.elapsed_time_flight_loop, -1)
         self.quit_flight_loop = xp.createFlightLoop(self.quit)
-        xp.scheduleFlightLoop(self.quit_flight_loop, 45)
+        xp.scheduleFlightLoop(self.quit_flight_loop, 10)
         self.bank_ai_flight_loop = xp.createFlightLoop(self.rollAI)
         xp.scheduleFlightLoop(self.bank_ai_flight_loop, -1)
         self.pitch_ai_flight_loop = xp.createFlightLoop(self.pitchAI)
@@ -121,7 +137,7 @@ class PythonInterface:
             'data': None
             }).encode('utf-8'))
         sock.close()
-        context.term()
+        context.destroy()
 
     def XPluginDisable(self):
         pass
@@ -139,6 +155,7 @@ class PythonInterface:
         distance_from_ai = 400
 
         # x and z coordinates of paya lebar air base runway 02 for terrain (lack of mountains)
+        # but i need to spawn myself into an area close enough to singapore
         ai_x = -10923
         ai_y = 350
         ai_z = 17443
@@ -165,13 +182,11 @@ class PythonInterface:
             return -1
         
         self.elapsed_time = elapsedTime - self.first_elapsedTime
-
         return -1
     
     def quit(self, _sinceLast, _elapsedTime, _counter, _refcon):
         if self.elapsed_time > self.quit_elapsed_time:
             commands.find_command('sim/operation/quit').once()
-
         return 1
     
     def rollAI(self, _sinceLast, _elapsedTime, _counter, _refcon):
@@ -183,16 +198,19 @@ class PythonInterface:
             return 0.5
                 
         self.ai_plane.yoke_roll_ratio = math.tanh(current_roll) * -1
-
-#        xp.log(f'at time {self.elapsed_time}, my position is {self.my_plane.position}')
-
         return 1
     
     def pitchAI(self, _sinceLast, _elapsedTime, _counter, _refcon):
         vx, vy, vz = self.ai_plane.velocity
-        self.ai_plane.yoke_pitch_ratio = math.tanh(vy / 20) * -1
-#        xp.log(f'at time {self.elapsed_time}, ai plane vy is {vy} and yoke pitch ratio is {self.ai_plane.yoke_pitch_ratio}')
 
+        if self.elapsed_time > self.start_time and self.elapsed_time < self.end_time:
+            difference = vy - self.manoeuvre_vy
+            self.ai_plane.yoke_pitch_ratio = math.tanh(difference / 20) * -1
+            xp.log(f'at time {self.elapsed_time}, ai plane vy is {vy} and yoke pitch ratio is {self.ai_plane.yoke_pitch_ratio}')
+            return 0.5
+
+        self.ai_plane.yoke_pitch_ratio = math.tanh(vy / 20) * -1
+        xp.log(f'at time {self.elapsed_time}, ai plane vy is {vy} and yoke pitch ratio is {self.ai_plane.yoke_pitch_ratio}')
         return 1
     
     def thrustAI(self, _sinceLast, _elapsedTime, _counter, _refcon):
@@ -200,9 +218,9 @@ class PythonInterface:
         v_ai_knots = v_ai * 1.94384
         target_v = 90
         difference = v_ai_knots - target_v
-        self.ai_plane.throttle_ratio = math.tanh(difference / 5) * -0.5 + 0.5
-        xp.log(f'at time {self.elapsed_time}, ai plane velocity is {v_ai_knots} and throttle ratio is {self.ai_plane.throttle_ratio}')
 
+        self.ai_plane.throttle_ratio = math.tanh(difference / 4) * -0.5 + 0.5
+        xp.log(f'at time {self.elapsed_time}, ai plane velocity is {v_ai_knots} and throttle ratio is {self.ai_plane.throttle_ratio}')
         return 1
 
     def reportVars(self, _sinceLast, elapsedTime, _counter, _refcon):
@@ -243,14 +261,15 @@ class PythonInterface:
         
         if xp.getDatai(self.has_crashed_dataRef):
             sock.send(json.dumps({
-                'stream': 'stop',
-                'data': self.elapsed_time
+                'stream': 'crashed',
+                'data': round(self.elapsed_time, 2)
             }).encode('utf-8'))
-
+            if self.quit_elapsed_time > self.elapsed_time + 2:
+                self.quit_elapsed_time = self.elapsed_time + 2
+                xp.log(f'plane crashed so i changed quit time to {self.quit_elapsed_time} s')
         return 0.3
 
 def override_ai_autopilot(plane_index=None):
-    '''off the autopilot for the AI plane'''
     if plane_index:
         dataRef = xp.findDataRef('sim/operation/override/override_plane_ai_autopilot')
         xp.setDatavi(dataRef, [1], plane_index)
