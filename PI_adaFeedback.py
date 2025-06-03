@@ -1,4 +1,5 @@
 from XPPython3 import xp
+from XPPython3.utils import commands
 import math
 import numpy as np
 import zmq
@@ -37,9 +38,12 @@ class PythonInterface:
         self.stall_warning_dataRef = None
         self.has_crashed_dataRef = None
         self.ai_plane = None
+
+        self.quit_command = None
         
         self.spawn_flight_loop = None
         self.elapsed_time_flight_loop = None
+        self.quit_flight_loop = None
         self.straight_flight_loop = None
         self.bank_ai_flight_loop = None
         self.pitch_ai_flight_loop = None
@@ -49,6 +53,8 @@ class PythonInterface:
         self.loop_count = 0
         self.first_elapsedTime = 0.0
         self.elapsed_time = 0.0
+
+        self.quit_elapsed_time = 40
 
         # manoeuvre details
         self.manoeuvre = 'right bank'
@@ -97,6 +103,8 @@ class PythonInterface:
         xp.scheduleFlightLoop(self.spawn_flight_loop, -1)
         self.elapsed_time_flight_loop = xp.createFlightLoop(self.elapsedTime)
         xp.scheduleFlightLoop(self.elapsed_time_flight_loop, -1)
+        self.quit_flight_loop = xp.createFlightLoop(self.quit)
+        xp.scheduleFlightLoop(self.quit_flight_loop, 45)
         self.bank_ai_flight_loop = xp.createFlightLoop(self.rollAI)
         xp.scheduleFlightLoop(self.bank_ai_flight_loop, -1)
         self.pitch_ai_flight_loop = xp.createFlightLoop(self.pitchAI)
@@ -125,7 +133,7 @@ class PythonInterface:
             }).encode('utf-8'))
         sock.send(json.dumps({
             'stream': 'manoeuvre',
-            'data': f'enemy aircraft executing {self.manoeuvre} from {self.start_time} to {self.end_time} seconds'
+            'data': f'{self.manoeuvre} from {self.start_time} to {self.end_time} seconds'
             }).encode('utf-8'))
         
         distance_from_ai = 400
@@ -151,12 +159,20 @@ class PythonInterface:
         return 0
         
     def elapsedTime(self, _sinceLast, elapsedTime, _counter, _refcon):
-        if self.loop_count <= 2: # so elapsed time starts from the third loop
+        if self.loop_count <= 2:
             self.loop_count += 1
             self.first_elapsedTime = elapsedTime
             return -1
+        
         self.elapsed_time = elapsedTime - self.first_elapsedTime
+
         return -1
+    
+    def quit(self, _sinceLast, _elapsedTime, _counter, _refcon):
+        if self.elapsed_time > self.quit_elapsed_time:
+            commands.find_command('sim/operation/quit').once()
+
+        return 1
     
     def rollAI(self, _sinceLast, _elapsedTime, _counter, _refcon):
         current_roll = self.ai_plane.roll / rad_to_deg
@@ -168,7 +184,7 @@ class PythonInterface:
                 
         self.ai_plane.yoke_roll_ratio = math.tanh(current_roll) * -1
 
-        xp.log(f'at time {self.elapsed_time}, my position is {self.my_plane.position}')
+#        xp.log(f'at time {self.elapsed_time}, my position is {self.my_plane.position}')
 
         return 1
     
@@ -185,7 +201,7 @@ class PythonInterface:
         target_v = 90
         difference = v_ai_knots - target_v
         self.ai_plane.throttle_ratio = math.tanh(difference / 5) * -0.5 + 0.5
-#        xp.log(f'at time {self.elapsed_time}, ai plane velocity is {v_ai_knots} and throttle ratio is {self.ai_plane.throttle_ratio}')
+        xp.log(f'at time {self.elapsed_time}, ai plane velocity is {v_ai_knots} and throttle ratio is {self.ai_plane.throttle_ratio}')
 
         return 1
 
@@ -216,8 +232,8 @@ class PythonInterface:
             'pitch': self.my_plane.pitch, 'ideal pitch': ideal_pitch, 'roll': self.my_plane.roll, 'heading': self.my_plane.heading, 'ideal heading': ideal_heading,
             'angle of attack': xp.getDataf(self.aoa_dataRef), 'sideslip angle': xp.getDataf(self.sideslip_dataRef),
             'centre stick pitch ratio': self.my_plane.yoke_pitch_ratio, 'centre stick roll ratio': self.my_plane.yoke_roll_ratio, 'rudder pedal ratio': self.my_plane.yoke_heading_ratio, 'throttle ratio': self.my_plane.throttle_ratio,
-            'kias': xp.getDataf(self.ias_dataRef),
-            'stall warning': xp.getDatai(self.stall_warning_dataRef)#, 'has crashed': xp.getDatai(self.has_crashed_dataRef)
+            'indicated airspeed': xp.getDataf(self.ias_dataRef),
+            'stall warning': xp.getDatai(self.stall_warning_dataRef)
         }
 
         sock.send(json.dumps({
