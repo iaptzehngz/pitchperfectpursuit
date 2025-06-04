@@ -3,6 +3,7 @@ from datetime import datetime
 import os
 import subprocess
 import zmq
+# import obsws_python as obs # https://github.com/aatikturk/obsws-python
 import json
 import numpy as np
 import pandas as pd
@@ -64,7 +65,7 @@ def process_dataframe(values):
     df['in front of or behind enemy plane'] = ['behind' if aa < 90 else 'in front' for aa in df['aspect angle']]
     df['pitch deviation grade'] = ['visible' if abs(pdev) < 8 else 'lost sight' for pdev in df['pitch deviation']]
     df['heading deviation grade'] = ['visible' if abs(hdev) < 30 else 'lost sight' for hdev in df['heading deviation']]
-    df = df.iloc[1:-1]
+    df = df.iloc[:-1]
     return df
 
 def plot_and_save(df, output_dir, manoeuvre_description):
@@ -100,7 +101,7 @@ def generate_feedback(llm_client, df_to_csv, aircraft_type, i, manoeuvre_descrip
     number = numbering[i]
     print(f'number is {number}')
     system_content = f"""You are a flight instructor training new Air Force trainee pilots to track enemy aircraft on a {aircraft_type} simulator with a centre stick instead of a yoke. This will be the {number} time they are flying a real plane. You can assume that they are unknowledgeable about aviation and basic fighter manoeuvres and their terminology, likely only knowing about basic flight controls like centre stick and throttle inputs. Explain terms likely foreign to trainees if necessary. Ensure that your input is precise, succinct and very reliable. If you are unsure of your input, say so. Your input is very important to trainees."""
-    user_content_qn = f"""Given the following flight data from an enemy tracking training flight of a pilot in a {aircraft_type}, generate detailed and specific feedback for the trainee pilot, telling them how exactly to execute your feedback. As the syllabus has already been determined, do not suggest training scenarios or self-directed practice. Your feedback should be encouraging and motivational, acknowledging what the pilot did well. The feedback should answer the 3 following questions: 'What are my goals? (keep the response to this question to 25 words) How am I doing? How to improve?'. Include no more than one point per question and keep your response to 200 words. You may refer to past feedback indicated by "role": "assistant" in the chat history (if any) to reemphasize or build on points made in previous feedback, or acknowledge improvements.
+    user_content_qn = f"""Given the following flight data from an enemy tracking training flight of a pilot in a {aircraft_type}, generate detailed and specific feedback for the trainee pilot, telling them how exactly to execute your feedback. As the syllabus has already been determined, do not suggest training scenarios or self-directed practice. Your feedback should be encouraging and motivational, acknowledging what the pilot did well. The feedback should answer the 3 following questions: 'What are my goals? (keep the response to this question to 25 words) How am I doing? How to improve?'. Include no more than one point per question and keep your response to 200 words.
 
 {df_to_csv}
 Notes on the data:
@@ -115,7 +116,7 @@ Notes on the data:
     
     messages = [
         {"role": "system", "content": system_content},
-        *chat_history,
+#        *chat_history,
         {"role": "user", "content": user_content_qn}
     ]
     with open('prompt_characteristics.txt', 'a', encoding='utf-8') as p:
@@ -181,7 +182,7 @@ def main():
         google_api_key=GOOGLE_API_KEY,
         model=MODEL_NAME
     )
-    CHAT_HISTORY = []
+#    CHAT_HISTORY = []
 
     for i in range(7):  # For 7 manoeuvres
         output_dir = os.path.join(intermediate_dir, f'{i}')
@@ -199,10 +200,10 @@ def main():
         df_to_csv = df.to_csv()
 
         feedback = generate_feedback(
-            llm_client, df_to_csv, aircraft_type, i, manoeuvre_description, crashed, output_dir, date_time, CHAT_HISTORY
+            llm_client, df_to_csv, aircraft_type, i, manoeuvre_description, crashed, output_dir, date_time#, CHAT_HISTORY
         )
-        CHAT_HISTORY.append({'role': 'assistant', 'content': feedback})
-        print(CHAT_HISTORY)
+#        CHAT_HISTORY.append({'role': 'assistant', 'content': feedback})
+#        print(CHAT_HISTORY)
 #        variables = suggest_variables(
 #            llm_client_tools, feedback, df.columns
 #        )
