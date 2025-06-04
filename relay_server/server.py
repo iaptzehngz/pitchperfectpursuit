@@ -154,25 +154,10 @@ Notes on the data:
     return response.content
 
 def suggest_variables(llm_client, feedback, available_vars):
-    prompt = f"""
-    Given the following feedback for a trainee pilot:
-    \"\"\"{feedback}\"\"\"
-    and the available variables: {', '.join(available_vars)},
-    suggest one pair of variables (or a single variables) to plot against time that would best illustrate the points made in the feedback. 
-    Return your answer as a JSON array. For example:
-
-    ["yoke pitch ratio", "kias"]
-    """
-
-    response = llm_client.invoke([{"role": "user", "content": prompt}])
-    
-    try:
-        suggestions = json.loads(response.content)
-    except json.JSONDecodeError:
-        suggestions = ["kias", "distance"]  # Fallback pair
+    # was initially thinking of using function/tool calling to get the LLM to suggest variables to plot against time to illustrate the points raised in feedback
+    pass
 
 def main():
-    subprocess.run(['start', f'steam://run/2014780'], shell=True)
     date_time = datetime.now()
     str_date_time = date_time.strftime("%d-%m-%Y %H%M%S")
     intermediate_dir = f'values_and_plots/{str_date_time}/'
@@ -182,9 +167,9 @@ def main():
         google_api_key=GOOGLE_API_KEY,
         model=MODEL_NAME
     )
-#    CHAT_HISTORY = []
 
     for i in range(7):  # For 7 manoeuvres
+        subprocess.run(['start', f'steam://run/2014780'], shell=True)
         output_dir = os.path.join(intermediate_dir, f'{i}')
         os.mkdir(output_dir)
 
@@ -200,15 +185,10 @@ def main():
         df_to_csv = df.to_csv()
 
         feedback = generate_feedback(
-            llm_client, df_to_csv, aircraft_type, i, manoeuvre_description, crashed, output_dir, date_time#, CHAT_HISTORY
+            llm_client, df_to_csv, aircraft_type, i, manoeuvre_description, crashed, output_dir, date_time
         )
-#        CHAT_HISTORY.append({'role': 'assistant', 'content': feedback})
-#        print(CHAT_HISTORY)
-#        variables = suggest_variables(
-#            llm_client_tools, feedback, df.columns
-#        )
+
         print(f"\n--- Feedback for manoeuvre {i+1} ---\n{feedback}\n")
-#        print(f"\n--- Variables to plot for manoeuvre {i} ---\n{variables}\n")
 
 if __name__ == "__main__":
     main()
