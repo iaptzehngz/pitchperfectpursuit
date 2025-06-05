@@ -16,6 +16,7 @@ from langchain_community.retrievers import BM25Retriever
 from langchain.retrievers import EnsembleRetriever
 from rich.console import Console
 from rich.markdown import Markdown
+import re
 
 HOST = "127.0.0.1"
 PORT_STREAM = 5555
@@ -42,9 +43,9 @@ def setup_obs():
         startupinfo.wShowWindow = 2  # 6 = SW_MINIMIZE
         subprocess.Popen(OBS_PATH, cwd=OBS_PATH[:-9], startupinfo=startupinfo)
         time.sleep(10) # wait for OBS to start up - it needs to be ready for the below requests
-    obs_client = obs.ReqClient() # default args: host='localhost', 'port'=4455, password='', timeout=None
+    obs_client = obs.ReqClient() # default args: host='localhost', port=4455, password='', timeout=None
     obs_client.set_record_directory(RECORDING_DIR)
-    obs_client.set_profile_parameter("AdvOut", 'FFFilePath', RECORDING_DIR)
+    # obs_client.set_profile_parameter("AdvOut", 'FFFilePath', RECORDING_DIR) # if using advanced recording settings in OBS studio
     obs_client.set_profile_parameter("Output", "FilenameFormatting", RECORDING_NAME)
     obs_client.set_profile_parameter("Output", 'OverwriteIfExists', 'true')
     return obs_client
@@ -227,12 +228,12 @@ def main():
         )
 
         console = Console()
-        md = Markdown(f"\n--- Feedback for manoeuvre {i+1} ---\n" + feedback)
+        feedback = re.sub(r'(\*\*.+?\*\*)\n', r'\1  \n', feedback) # add 2 whitespaces after the double asterisk the LLM usually gives so markdown gives me a newline
+        md = Markdown(f"  \n--- Feedback for manoeuvre {i+1} ---  \n" + feedback)
         while vlc_process.poll() is None:
             time.sleep(1)
         console.print(md)
         time.sleep(30)
-#        print(f"\n--- Feedback for manoeuvre {i+1} ---\n{feedback}\n")   
 
 if __name__ == "__main__":
     main()
