@@ -2,10 +2,10 @@ import time
 from datetime import datetime
 import os
 import subprocess
+import psutil
 import zmq
-# import obsws_python as obs # https://github.com/aatikturk/obsws-python
-import json
-import numpy as np
+import obsws_python as obs # https://github.com/aatikturk/obsws-python
+import numpy
 import pandas as pd
 import matplotlib.pyplot as plt
 from langchain_community.document_loaders import TextLoader
@@ -14,6 +14,8 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGener
 from langchain_community.vectorstores import FAISS
 from langchain_community.retrievers import BM25Retriever
 from langchain.retrievers import EnsembleRetriever
+from rich.console import Console
+from rich.markdown import Markdown
 
 HOST = "127.0.0.1"
 PORT_STREAM = 5555
@@ -22,34 +24,66 @@ PORT_MANOEUVRE = 6666
 MODEL_NAME = "gemini-2.5-flash-preview-05-20"
 GOOGLE_API_KEY = "AIzaSyDh7u2AuBEfk_O_IuhuA0A2wIw6pXczlfE"
 
-def communicate_xp(i):
+OBS_PATH = "C:\\Program Files\\obs-studio\\bin\\64bit\\obs64.exe"
+RECORDING_DIR = os.path.dirname(os.path.abspath(__file__)) # path to directory this file is in
+RECORDING_NAME = "I love DSTA"
+RECORDING_PATH = os.path.join(RECORDING_DIR, RECORDING_NAME + '.mp4')
+
+VLC_PATH = "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe"
+
+def setup_obs():
+    obs_running = any(
+        proc.info['name'] and 'obs64.exe' in proc.info['name'].lower()
+        for proc in psutil.process_iter(['name'])
+    )
+    if not obs_running:
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        startupinfo.wShowWindow = 2  # 6 = SW_MINIMIZE
+        subprocess.Popen(OBS_PATH, cwd=OBS_PATH[:-9], startupinfo=startupinfo)
+        time.sleep(10) # wait for OBS to start up - it needs to be ready for the below requests
+    obs_client = obs.ReqClient() # default args: host='localhost', 'port'=4455, password='', timeout=None
+    obs_client.set_record_directory(RECORDING_DIR)
+    obs_client.set_profile_parameter("AdvOut", 'FFFilePath', RECORDING_DIR)
+    obs_client.set_profile_parameter("Output", "FilenameFormatting", RECORDING_NAME)
+    obs_client.set_profile_parameter("Output", 'OverwriteIfExists', 'true')
+    return obs_client
+
+def communicate_xp(i, obs_client):
+    with zmq.Context() as c:
+        with c.socket(zmq.PUSH) as s:
+            s.connect(f'tcp://{HOST}:{PORT_MANOEUVRE}')
+            s.send_json(i)
+        with c.socket(zmq.PULL) as s:
+            s.bind(f'tcp://{HOST}:{PORT_STREAM}')
+            data = collect_data(s, obs_client)
+    return data
+
+def collect_data(sock, obs_client):
     values = []
     manoeuvre_description = None
     aircraft_type = None # "Cessna 172 SP Skyhawk - 180HP - G1000"
     crashed = 'Trainee did not crash the plane'
-
-    with zmq.Context() as c:
-        with c.socket(zmq.PUSH) as sock_manoeuvre:
-            sock_manoeuvre.connect(f'tcp://{HOST}:{PORT_MANOEUVRE}')
-            sock_manoeuvre.send_json(i)
-        with c.socket(zmq.PULL) as sock:
-            sock.bind(f'tcp://{HOST}:{PORT_STREAM}')
-            while True:
-                data = json.loads(sock.recv().decode('utf-8'))
-                if data['stream'] == 'variables':
-                    print(data['data'])
-                    values.append(data['data'])
-                elif data['stream'] == 'stop':
-                    break
-                elif data['stream'] == 'crashed':
-                    crashed = f'Trainee crashed the plane at {data["data"]} seconds'
-                elif data['stream'] == 'aircraft type':
-                    aircraft_type = data['data']
-                elif data['stream'] == 'manoeuvre':
-                    manoeuvre_description = data['data']
-                else:
-                    raise KeyError(f"Unknown stream type")                
-        return values, manoeuvre_description, aircraft_type, crashed
+    while True:
+        data = sock.recv_json()
+        if data['stream'] == 'variables':
+            values.append(data['data'])
+        elif data['stream'] == 'stop':
+            break
+        elif data['stream'] == 'recording':
+            if data['data'] == 'start':
+                obs_client.start_record()
+            elif data['data'] == 'stop':
+                obs_client.stop_record()
+        elif data['stream'] == 'aircraft type':
+            aircraft_type = data['data']
+        elif data['stream'] == 'manoeuvre':
+            manoeuvre_description = data['data']
+        elif data['stream'] == 'crashed':
+            crashed = f'Trainee crashed the plane at {data["data"]} seconds'
+        else:
+            raise KeyError(f"Unknown stream type") 
+    return values, manoeuvre_description, aircraft_type, crashed
 
 def process_dataframe(values):
     df = pd.DataFrame(values)
@@ -85,9 +119,8 @@ def plot_and_save(df, output_dir, manoeuvre_description):
 def drop_unneeded_columns(df):
     df.drop(columns=[
         'Δt', 
-        'manoeuvre',
         'sideslip angle', 
-        'pitch', 'ideal pitch', 'heading', 'ideal heading', #'roll',
+        'ideal pitch', 'ideal heading', #'pitch', 'heading', 'roll',
         'aspect angle', 
         # 'pitch rate', 'roll rate',
         'rate of change of indicated airspeed',
@@ -96,7 +129,7 @@ def drop_unneeded_columns(df):
     ], inplace=True)
     return df
 
-def generate_feedback(llm_client, df_to_csv, aircraft_type, i, manoeuvre_description, crashed, output_dir, date_time, chat_history):
+def generate_feedback(llm_client, df_to_csv, aircraft_type, i, manoeuvre_description, crashed, date_time):
     numbering = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh']
     number = numbering[i]
     print(f'number is {number}')
@@ -116,7 +149,7 @@ Notes on the data:
     
     messages = [
         {"role": "system", "content": system_content},
-#        *chat_history,
+        # *chat_history, # could pass in a list of {'role': '...' (e.g., 'assistant'), 'content': '...'} if we wanted the LLM to remember past feedback/parameters
         {"role": "user", "content": user_content_qn}
     ]
     with open('prompt_characteristics.txt', 'a', encoding='utf-8') as p:
@@ -154,10 +187,12 @@ Notes on the data:
     return response.content
 
 def suggest_variables(llm_client, feedback, available_vars):
-    # was initially thinking of using function/tool calling to get the LLM to suggest variables to plot against time to illustrate the points raised in feedback
+    # could use function/tool calling (available on langchain and in gemini's own API) to get the LLM to suggest variables to plot against time to illustrate the points raised in feedback
     pass
 
 def main():
+    obs_client = setup_obs()
+
     date_time = datetime.now()
     str_date_time = date_time.strftime("%d-%m-%Y %H%M%S")
     intermediate_dir = f'values_and_plots/{str_date_time}/'
@@ -168,16 +203,19 @@ def main():
         model=MODEL_NAME
     )
 
-    for i in range(7):  # For 7 manoeuvres
-        subprocess.run(['start', f'steam://run/2014780'], shell=True)
+    for i in range(7):  # For 1 familiarisation, 1 pre-test, 7 manoeuvres and 1 post-test
+        print(f"\n--- Starting manoeuvre {i+1} ---\n")
+
+        subprocess.run(['start', 'steam://run/2014780'], shell=True)
+
         output_dir = os.path.join(intermediate_dir, f'{i}')
         os.mkdir(output_dir)
 
-        print(f"\n--- Starting feedback generation for manoeuvre {i+1} ---\n")
-
-        values, manoeuvre_description, aircraft_type, crashed = communicate_xp(i)
+        values, manoeuvre_description, aircraft_type, crashed = communicate_xp(i, obs_client)
         print(f'aircraft type is "{aircraft_type}"')
         print(f'manoeuvre description is "{manoeuvre_description}"')
+
+        vlc_process = subprocess.Popen([VLC_PATH, '--play-and-exit', RECORDING_PATH])
 
         df = process_dataframe(values)
         df = plot_and_save(df, output_dir, manoeuvre_description)
@@ -185,10 +223,16 @@ def main():
         df_to_csv = df.to_csv()
 
         feedback = generate_feedback(
-            llm_client, df_to_csv, aircraft_type, i, manoeuvre_description, crashed, output_dir, date_time
+            llm_client, df_to_csv, aircraft_type, i, manoeuvre_description, crashed, date_time
         )
 
-        print(f"\n--- Feedback for manoeuvre {i+1} ---\n{feedback}\n")
+        console = Console()
+        md = Markdown(f"\n--- Feedback for manoeuvre {i+1} ---\n" + feedback)
+        while vlc_process.poll() is None:
+            time.sleep(1)
+        console.print(md)
+        time.sleep(30)
+#        print(f"\n--- Feedback for manoeuvre {i+1} ---\n{feedback}\n")   
 
 if __name__ == "__main__":
     main()

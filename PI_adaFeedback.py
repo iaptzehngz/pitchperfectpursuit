@@ -3,7 +3,6 @@ from XPPython3.utils import commands
 import math
 import numpy as np
 import zmq
-import json
 
 HOST = '127.0.0.1'
 PORT_STREAM = 5555
@@ -56,6 +55,7 @@ class PythonInterface:
         self.elapsed_time = 0.0
 
         self.quit_elapsed_time = 30
+        self.quit_first_run = True
 
         # manoeuvre details
         self.manoeuvre = None
@@ -131,26 +131,15 @@ class PythonInterface:
         xp.scheduleFlightLoop(self.report_flight_loop, -1)
         return 1
     
-    def XPluginStop(self):
-        sock.send(json.dumps({
-            'stream': 'stop',
-            'data': None
-            }).encode('utf-8'))
-        sock.close()
-        context.destroy()
-
-    def XPluginDisable(self):
-        pass
-    
     def spawnMe(self, _sinceLast, _elapsedTime, _counter, _refcon):
-        sock.send(json.dumps({
+        sock.send_json({
             'stream': "aircraft type",
             'data': xp.getDatas(xp.findDataRef('sim/aircraft/view/acf_descrip'))
-            }).encode('utf-8'))
-        sock.send(json.dumps({
+            })
+        sock.send_json({
             'stream': 'manoeuvre',
             'data': f'{self.manoeuvre} from {self.start_time} to {self.end_time} seconds'
-            }).encode('utf-8'))
+            })
         
         distance_from_ai = 400
 
@@ -164,7 +153,6 @@ class PythonInterface:
         ai_heading = self.ai_plane.heading
         ai_heading_rad = ai_heading / rad_to_deg
 
-#        ai_x, ai_y, ai_z = self.ai_plane.position
         shifted_x = ai_x - distance_from_ai * math.sin(ai_heading_rad)
         shifted_z = ai_z + distance_from_ai * math.cos(ai_heading_rad)
         ai_lat, ai_long, ai_elevation = xp.localToWorld(shifted_x, ai_y, shifted_z)
@@ -179,6 +167,11 @@ class PythonInterface:
         if self.loop_count <= 2:
             self.loop_count += 1
             self.first_elapsedTime = elapsedTime
+            if self.loop_count == 2:
+                sock.send_json({
+                    'stream': 'recording',
+                    'data': 'start'
+                })
             return -1
         
         self.elapsed_time = elapsedTime - self.first_elapsedTime
@@ -187,6 +180,12 @@ class PythonInterface:
     def quit(self, _sinceLast, _elapsedTime, _counter, _refcon):
         if self.elapsed_time > self.quit_elapsed_time:
             commands.find_command('sim/operation/quit').once()
+            if self.quit_first_run:            
+                sock.send_json({
+                    'stream': 'recording',
+                    'data': 'stop'
+                    })
+                self.quit_first_run = False
         return 1
     
     def rollAI(self, _sinceLast, _elapsedTime, _counter, _refcon):
@@ -244,7 +243,6 @@ class PythonInterface:
 
         variables = {
             't': self.elapsed_time,
-            'manoeuvre': self.manoeuvre,
             'distance': distance, 
             'aspect angle': aspect_angle,
             'pitch': self.my_plane.pitch, 'ideal pitch': ideal_pitch, 'roll': self.my_plane.roll, 'heading': self.my_plane.heading, 'ideal heading': ideal_heading,
@@ -254,20 +252,31 @@ class PythonInterface:
             'stall warning': xp.getDatai(self.stall_warning_dataRef)
         }
 
-        sock.send(json.dumps({
+        sock.send_json({
             'stream': 'variables',
             'data': variables
-            }).encode('utf-8'))
+            })
         
         if xp.getDatai(self.has_crashed_dataRef):
-            sock.send(json.dumps({
+            sock.send_json({
                 'stream': 'crashed',
                 'data': round(self.elapsed_time, 2)
-            }).encode('utf-8'))
+            })
             if self.quit_elapsed_time > self.elapsed_time + 2:
                 self.quit_elapsed_time = self.elapsed_time + 2
                 xp.log(f'plane crashed so i changed quit time to {self.quit_elapsed_time} s')
         return 0.3
+    
+    def XPluginStop(self):
+        sock.send_json({
+            'stream': 'stop',
+            'data': None
+            })
+        sock.close()
+        context.destroy()
+
+    def XPluginDisable(self):
+        pass
 
 def override_ai_autopilot(plane_index=None):
     if plane_index:
