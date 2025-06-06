@@ -73,6 +73,7 @@ class PythonInterface:
             ('gentle left turn', -30 / rad_to_deg, 0, 10, 20),
             ('steep right turn', 45 / rad_to_deg, 0, 10, 20), # 90 deg turn
             ('steep left turn', -45 / rad_to_deg, 0, 10, 20) # but this gave me an extra 10 deg??
+            (None, None, None, None, None)
         )
         with context.socket(zmq.PULL) as sock_manoeuvre:
             sock_manoeuvre.bind(f"tcp://{HOST}:{PORT_MANOEUVRE}")
@@ -155,12 +156,19 @@ class PythonInterface:
 
         shifted_x = ai_x - distance_from_ai * math.sin(ai_heading_rad)
         shifted_z = ai_z + distance_from_ai * math.cos(ai_heading_rad)
-        ai_lat, ai_long, ai_elevation = xp.localToWorld(shifted_x, ai_y, shifted_z)
+        lat, long, elevation = xp.localToWorld(shifted_x, ai_y, shifted_z)
 
         ai_speed = np.linalg.norm(self.ai_plane.velocity, ord=2)
 
-        xp.placeUserAtLocation(ai_lat, ai_long, ai_elevation, ai_heading, ai_speed)
-        xp.log(f'Placed user at latitude: {ai_lat}, longitude: {ai_long}, elevation: {ai_elevation} with heading: {ai_heading}, speed: {ai_speed}')
+        if self.manoeuvre:
+            xp.placeUserAtLocation(lat, long, elevation, ai_heading, ai_speed)
+        else:
+            if ai_heading < 180:
+                heading = ai_heading + 180
+            else:
+                heading = ai_heading - 180
+            xp.placeUserAtLocation(lat, long, 3000, heading, ai_speed)
+        xp.log(f'Placed user at latitude: {lat}, longitude: {long}, elevation: {elevation} with heading: {ai_heading}, speed: {ai_speed}')
         return 0
         
     def elapsedTime(self, _sinceLast, elapsedTime, _counter, _refcon):
@@ -179,13 +187,13 @@ class PythonInterface:
     
     def quit(self, _sinceLast, _elapsedTime, _counter, _refcon):
         if self.elapsed_time > self.quit_elapsed_time:
-            commands.find_command('sim/operation/quit').once()
             if self.quit_first_run:            
                 sock.send_json({
                     'stream': 'recording',
                     'data': 'stop'
                     })
                 self.quit_first_run = False
+            commands.find_command('sim/operation/quit').once()
         return 1
     
     def rollAI(self, _sinceLast, _elapsedTime, _counter, _refcon):
@@ -268,10 +276,6 @@ class PythonInterface:
         return 0.3
     
     def XPluginStop(self):
-        sock.send_json({
-            'stream': 'stop',
-            'data': None
-            })
         sock.close()
         context.destroy()
 
