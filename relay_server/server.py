@@ -141,7 +141,7 @@ def generate_feedback(llm_client, df_to_csv, aircraft_type, i, manoeuvre_descrip
 
     Trainees are also unfamiliar with concepts such as sideslip, slip/skid indicators, coordinated turns, lead vs lag pursuit, relative motion cues, energy management (e.g., trading altitude for speed), situational awareness techniques, and interpreting instrument feedback like airspeed trends, angle of attack behavior, or G-load changes. They also tend to struggle with concepts like aspect angle, turn rate vs turn radius, and knowing when to roll, pitch, or use throttle to re-center a target.
 
-    When providing feedback, explain unfamiliar terms briefly and in plain, actionable language. Avoid using raw simulator variable names like 'rudder pedal ratio' — instead, describe the trainee's control inputs in natural terms (e.g., "you used too much rudder"). Do not introduce new training content unless it is strictly necessary to explain the observed performance. Do not suggest training scenarios or self-directed exercises — the syllabus has already been determined.
+    Explain terms or concepts likely foreign to trainees. Do not suggest training scenarios or self-directed exercises — the syllabus has already been determined.
 
     Your feedback is extremely important to the trainee, and must be precise, succinct, and highly reliable. If you are unsure of your input, say so. Structure all feedback under the following three required questions:
 
@@ -150,7 +150,7 @@ def generate_feedback(llm_client, df_to_csv, aircraft_type, i, manoeuvre_descrip
     3. How to improve?
 
     Only give one clear and specific point per question, and keep the entire response under 200 words."""
-    user_content_qn = f"""Given the following flight data from an enemy tracking training flight of a pilot in a {aircraft_type}, generate detailed and specific feedback for the trainee pilot. When giving technical explanations, summarize them in plain, actionable language suitable for a beginner trainee. As the syllabus has already been determined, do not suggest training scenarios or self-directed practice. Your feedback should be encouraging and motivational, acknowledging what the pilot did well.
+    user_content_qn = f"""Given the following flight data from an enemy tracking training flight of a pilot in a {aircraft_type}, generate detailed and specific feedback for the trainee pilot. When giving technical explanations, summarize them in plain, actionable language suitable for a beginner trainee. Your feedback should be encouraging and motivational, acknowledging what the pilot did well.
 
     {df_to_csv}
 
