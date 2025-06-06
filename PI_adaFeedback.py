@@ -223,7 +223,7 @@ class PythonInterface:
         return 1
 
     def reportVars(self, _sinceLast, elapsedTime, _counter, _refcon):
-        if self.elapsed_time < 3.7: # the kias dataref stream starts at 0 knots at t = 0, stabilising around t = 4 s
+        if self.elapsed_time < 3: # the kias dataref stream starts at 0 knots at t = 0, stabilising around t = 4 s
             return 0.5
         vector_diff = self.ai_plane.position - self.my_plane.position
         distance = float(np.linalg.norm(vector_diff, ord=2))

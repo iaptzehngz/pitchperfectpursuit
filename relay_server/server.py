@@ -4,7 +4,7 @@ import os
 import subprocess
 import psutil
 import zmq
-import obsws_python as obs # https://github.com/aatikturk/obsws-python
+import obsws_python as obs
 import numpy
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -18,6 +18,9 @@ from rich.console import Console
 from rich.markdown import Markdown
 import re
 
+CWD = os.path.dirname(os.path.abspath(__file__))
+os.chdir(CWD)
+
 HOST = "127.0.0.1"
 PORT_STREAM = 5555
 PORT_MANOEUVRE = 6666
@@ -26,7 +29,7 @@ MODEL_NAME = "gemini-2.5-flash-preview-05-20"
 GOOGLE_API_KEY = "AIzaSyDh7u2AuBEfk_O_IuhuA0A2wIw6pXczlfE"
 
 OBS_PATH = "C:\\Program Files\\obs-studio\\bin\\64bit\\obs64.exe"
-RECORDING_DIR = os.path.dirname(os.path.abspath(__file__)) # path to directory this file is in
+RECORDING_DIR = CWD
 RECORDING_NAME = "I love DSTA"
 RECORDING_PATH = os.path.join(RECORDING_DIR, RECORDING_NAME + '.mp4')
 
@@ -100,7 +103,7 @@ def process_dataframe(values):
     df['in front of or behind enemy plane'] = ['behind' if aa < 90 else 'in front' for aa in df['aspect angle']]
     df['pitch deviation grade'] = ['visible' if abs(pdev) < 8 else 'lost sight' for pdev in df['pitch deviation']]
     df['heading deviation grade'] = ['visible' if abs(hdev) < 30 else 'lost sight' for hdev in df['heading deviation']]
-    df = df.iloc[:-1]
+    df = df.iloc[1:-1]
     return df
 
 def plot_and_save(df, output_dir, manoeuvre_description):
@@ -114,7 +117,7 @@ def plot_and_save(df, output_dir, manoeuvre_description):
     df = df.round(2)
     df.index = df.index.round(2)
     df.to_csv(os.path.join(output_dir, 'values.csv'))
-    print(df, df.columns)
+    print(df.columns)
     return df
 
 def drop_unneeded_columns(df):
@@ -130,61 +133,48 @@ def drop_unneeded_columns(df):
     ], inplace=True)
     return df
 
-def generate_feedback(llm_client, df_to_csv, aircraft_type, i, manoeuvre_description, crashed, date_time):
+def generate_feedback(llm_client, df_to_csv, aircraft_type, i, manoeuvre_description, crashed, date_time, dir):
     numbering = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh']
     number = numbering[i]
-    print(f'number is {number}')
-    system_content = f"""You are a flight instructor training new Air Force trainee pilots to track enemy aircraft on a {aircraft_type} simulator with a centre stick instead of a yoke. This will be the {number} time they are flying a real plane. You can assume that they are unknowledgeable about aviation and basic fighter manoeuvres and their terminology, likely only knowing about basic flight controls like centre stick and throttle inputs. Explain terms likely foreign to trainees if necessary. Ensure that your input is precise, succinct and very reliable. If you are unsure of your input, say so. Your input is very important to trainees."""
-    user_content_qn = f"""Given the following flight data from an enemy tracking training flight of a pilot in a {aircraft_type}, generate detailed and specific feedback for the trainee pilot, telling them how exactly to execute your feedback. As the syllabus has already been determined, do not suggest training scenarios or self-directed practice. Your feedback should be encouraging and motivational, acknowledging what the pilot did well. The feedback should answer the 3 following questions: 'What are my goals? (keep the response to this question to 25 words) How am I doing? How to improve?'. Include no more than one point per question and keep your response to 200 words.
 
-{df_to_csv}
-Notes on the data:
-- The enemy aircraft is executing a {manoeuvre_description}.
-- {crashed}
-- Distance is in metres.
-- Indicated airspeed is in knots.
-- Pitch and heading deviations are in degrees and are unavailable to trainees.
-- Positive pitch deviation means the trainee is pointing too high/above the enemy and should pitch down to re-center the target vertically. Positive heading deviation means the trainee is pointing too far right and should turn left to center the target horizontally.
-- Trainee would lose sight of the enemy plane if the absolute value of the pitch deviation is greater than 8 degrees and the absolute value of the heading deviation is greater than 30 degrees.
-"""
+    system_content = f"""You are a flight instructor training new Air Force trainee pilots to visually track enemy aircraft on a {aircraft_type} simulator with a centre stick instead of a yoke. This is only their {number} session flying in a simulator, and they have not flown a real aircraft yet. You can assume that they are unknowledgeable about aviation, their aircraft layout, flight dynamics and basic fighter manoeuvres, likely only knowing about basic flight controls like centre stick and throttle inputs. 
+
+    **Trainees are also unfamiliar with concepts such as sideslip, slip/skid indicators, coordinated turns, lead pursuit vs lag pursuit, relative motion cues, energy management (such as trading altitude for speed), situational awareness techniques, and interpreting instrument feedback like airspeed trends, AoA behavior, or G-load changes.** Assume they also struggle with concepts like aspect angle, turn rate vs turn radius, and generally find it difficult to judge when to roll, pitch, or throttle to re-center the enemy aircraft in their view.
+
+    Hence, you should explain terms likely foreign to trainees. Ensure that your input is precise, succinct and very reliable. If you are unsure of your input, say so. Your input is very important to trainees.
+    """
+    user_content_qn = f"""Given the following flight data from an enemy tracking training flight of a pilot in a {aircraft_type}, generate detailed and specific feedback for the trainee pilot. When giving technical explanations, summarize them in plain, actionable language suitable for a beginner trainee. As the syllabus has already been determined, do not suggest training scenarios or self-directed practice. Your feedback should be encouraging and motivational, acknowledging what the pilot did well. The feedback should answer the 3 following questions: 'What are my goals? (keep the response to this question to 25 words) How am I doing? How to improve?'. Include no more than one point per question and keep your response to 200 words.
+
+    {df_to_csv}
+    Notes on the data:
+    - The enemy aircraft is executing a {manoeuvre_description}.
+    - {crashed}
+    - Distance is in metres.
+    - Indicated airspeed is in knots.
+    - Pitch and heading deviations are in degrees and are unavailable to trainees.
+    - Centre stick and rudder pedal ratios represent simulator-derived input intensities for pitch/roll and yaw control, respectively. These values are for your analysis only and should not be quoted verbatim (e.g., avoid saying 'rudder pedal ratio') in your feedback. Instead, describe the pilot's control actions in natural language.
+    - Positive pitch deviation means the trainee is pointing too high/above the enemy and should pitch down to re-center the target vertically. Positive heading deviation means the trainee is pointing too far right and should turn left to center the target horizontally.
+    - Trainee would lose sight of the enemy plane if the absolute value of the pitch deviation is greater than 8 degrees and the absolute value of the heading deviation is greater than 30 degrees.
+    """
     
     messages = [
         {"role": "system", "content": system_content},
         # *chat_history, # could pass in a list of {'role': '...' (e.g., 'assistant'), 'content': '...'} if we wanted the LLM to remember past feedback/parameters
         {"role": "user", "content": user_content_qn}
     ]
-    with open('prompt_characteristics.txt', 'a', encoding='utf-8') as p:
-        p.write(f'''at {date_time}, messages:
 
-{messages}
-
-
-
-''')
     start_time = time.perf_counter()
     response = llm_client.invoke(messages)
     end_time = time.perf_counter()
-    elapsed_time = end_time - start_time
-
-    print(response)
-    
-    with open('responses.txt', 'a') as r:
-        r.write(f'''at {date_time}, response content:
-            
-{response.content}
-
-
-
-''')
+    elapsed_time = end_time - start_time    
     print(f"Response time: {elapsed_time:.2f} seconds")
-    with open('time_taken.txt', 'a') as t:
-        t.write(f'''at {date_time}, time taken for response: 
-            
-{elapsed_time:.2f} s
 
-
-
-''')
+    with open(os.path.join(dir, 'prompt_characteristics.txt'), 'a', encoding='utf-8') as p:
+        p.write(f'at {date_time}, messages:\n\n{messages}\n\n\n\n')
+    with open(os.path.join(dir, 'responses.txt'), 'a') as r:
+        r.write(f'at {date_time}, response content:\n\n{response.content}\n\n\n\n')
+    with open(os.path.join(dir, 'time_taken.txt'), 'a') as t:
+        t.write(f'at {date_time}, time taken for response:\n\n{elapsed_time:.2f} s\n\n\n\n')
     return response.content
 
 def suggest_variables(llm_client, feedback, available_vars):
@@ -223,9 +213,7 @@ def main():
         df = drop_unneeded_columns(df)
         df_to_csv = df.to_csv()
 
-        feedback = generate_feedback(
-            llm_client, df_to_csv, aircraft_type, i, manoeuvre_description, crashed, date_time
-        )
+        feedback = generate_feedback(llm_client, df_to_csv, aircraft_type, i, manoeuvre_description, crashed, date_time, intermediate_dir)
 
         console = Console()
         feedback = re.sub(r'(\*\*.+?\*\*)\n', r'\1  \n', feedback) # add 2 whitespaces after the double asterisk the LLM usually gives so markdown gives me a newline
