@@ -166,17 +166,18 @@ def generate_feedback(llm_client, df_to_csv, aircraft_type, i, manoeuvre_descrip
     elapsed_time = end_time - start_time    
     print(f"Response time: {elapsed_time:.2f} seconds")
 
-    with open(os.path.join(dir, 'prompt_characteristics.txt'), 'a', encoding='utf-8') as p:
-        p.write(f'at {date_time}, messages:\n\n{messages}\n\n\n\n')
-    with open(os.path.join(dir, 'responses.txt'), 'a') as r:
-        r.write(f'at {date_time}, response content:\n\n{response.content}\n\n\n\n')
-    with open(os.path.join(dir, 'time_taken.txt'), 'a') as t:
-        t.write(f'at {date_time}, time taken for response:\n\n{elapsed_time:.2f} s\n\n\n\n')
+    write_log('prompt_characteristics.txt', f'at {date_time}, messages:\n\n{messages}\n\n\n\n', dir)
+    write_log('responses.txt', f'at {date_time}, response content:\n\n{response.content}\n\n\n\n', dir)
+    write_log('time_taken.txt', f'at {date_time}, time taken for response:\n\n{elapsed_time:.2f} s\n\n\n\n', dir)
     return response.content
 
 def suggest_variables(llm_client, feedback, available_vars):
     # could use function/tool calling (available on langchain and in gemini's own API) to get the LLM to suggest variables to plot against time to illustrate the points raised in feedback
     pass
+
+def write_log(filename, content, dir):
+    with open(os.path.join(dir, filename), 'a', encoding='utf-8') as f:
+        f.write(content)
 
 def main():
     obs_client = setup_obs()
