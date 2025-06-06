@@ -117,7 +117,6 @@ def plot_and_save(df, output_dir, manoeuvre_description):
     df = df.round(2)
     df.index = df.index.round(2)
     df.to_csv(os.path.join(output_dir, 'values.csv'))
-    print(df.columns)
     return df
 
 def drop_unneeded_columns(df):
@@ -201,8 +200,7 @@ def main():
         os.mkdir(output_dir)
 
         values, manoeuvre_description, aircraft_type, crashed = communicate_xp(i, obs_client)
-        print(f'aircraft type is "{aircraft_type}"')
-        print(f'manoeuvre description is "{manoeuvre_description}"')
+        print(f'Enemy aircraft is executing "{manoeuvre_description}"')
 
         vlc_process = subprocess.Popen([VLC_PATH, '--play-and-exit', RECORDING_PATH])
 
