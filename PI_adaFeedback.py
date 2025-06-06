@@ -78,8 +78,8 @@ class PythonInterface:
         with context.socket(zmq.PULL) as sock_manoeuvre:
             sock_manoeuvre.bind(f"tcp://{HOST}:{PORT_MANOEUVRE}")
             manoeuvre_no = sock_manoeuvre.recv_json()
-            xp.log(f'manoeuvre no. {manoeuvre_no} with flight parameters {manoeuvres[manoeuvre_no]}')
-            self.manoeuvre, self.manoeuvre_roll, self.manoeuvre_vy, self.start_time, self.end_time = manoeuvres[manoeuvre_no]
+            xp.log(f'manoeuvre no. {manoeuvre_no} with flight parameters {manoeuvres[manoeuvre_no - 1]}')
+            self.manoeuvre, self.manoeuvre_roll, self.manoeuvre_vy, self.start_time, self.end_time = manoeuvres[manoeuvre_no - 1]
         return "PI_stshmybae", "xppython3.ilovedsta", "Spawn aircraft and stream data"
     
     def XPluginEnable(self):
