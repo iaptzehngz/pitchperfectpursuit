@@ -73,7 +73,7 @@ class PythonInterface:
             ('gentle left turn', -30 / rad_to_deg, 0, 10, 20),
             ('steep right turn', 45 / rad_to_deg, 0, 10, 20), # 90 deg turn
             ('steep left turn', -45 / rad_to_deg, 0, 10, 20) # but this gave me an extra 10 deg??
-            (None, None, None, None, None)
+            ('familiarisation', 0, -1000, 0, 25)
         )
         with context.socket(zmq.PULL) as sock_manoeuvre:
             sock_manoeuvre.bind(f"tcp://{HOST}:{PORT_MANOEUVRE}")
@@ -160,14 +160,14 @@ class PythonInterface:
 
         ai_speed = np.linalg.norm(self.ai_plane.velocity, ord=2)
 
-        if self.manoeuvre:
-            xp.placeUserAtLocation(lat, long, elevation, ai_heading, ai_speed)
-        else:
+        if self.manoeuvre == 'familiarisation':
             if ai_heading < 180:
                 heading = ai_heading + 180
             else:
                 heading = ai_heading - 180
             xp.placeUserAtLocation(lat, long, 3000, heading, ai_speed)
+        else:
+            xp.placeUserAtLocation(lat, long, elevation, ai_heading, ai_speed)
         xp.log(f'Placed user at latitude: {lat}, longitude: {long}, elevation: {elevation} with heading: {ai_heading}, speed: {ai_speed}')
         return 0
         
