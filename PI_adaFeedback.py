@@ -276,6 +276,10 @@ class PythonInterface:
         return 0.3
     
     def XPluginStop(self):
+        sock.send_json({
+            'stream': 'stop',
+            'data': None
+            })
         sock.close()
         context.destroy()
 
