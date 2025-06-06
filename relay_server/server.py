@@ -29,13 +29,13 @@ MODEL_NAME = "gemini-2.5-flash-preview-05-20"
 GOOGLE_API_KEY = "AIzaSyDh7u2AuBEfk_O_IuhuA0A2wIw6pXczlfE"
 
 OBS_PATH = "C:\\Program Files\\obs-studio\\bin\\64bit\\obs64.exe"
-RECORDING_DIR = CWD
-RECORDING_NAME = "I love DSTA"
-RECORDING_PATH = os.path.join(RECORDING_DIR, RECORDING_NAME + '.mp4')
+# RECORDING_DIR = CWD
+# RECORDING_NAME = "I love DSTA"
+# RECORDING_PATH = os.path.join(RECORDING_DIR, RECORDING_NAME + '.mp4')
 
 VLC_PATH = "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe"
 
-def setup_obs():
+def setup_obs(saves_dir):
     obs_running = any(
         proc.info['name'] and 'obs64.exe' in proc.info['name'].lower()
         for proc in psutil.process_iter(['name'])
@@ -47,17 +47,17 @@ def setup_obs():
         subprocess.Popen(OBS_PATH, cwd=OBS_PATH[:-9], startupinfo=startupinfo)
         time.sleep(10) # wait for OBS to start up - it needs to be ready for the below requests
     obs_client = obs.ReqClient() # default args: host='localhost', port=4455, password='', timeout=None
-    obs_client.set_record_directory(RECORDING_DIR)
+    obs_client.set_record_directory(saves_dir)
     # obs_client.set_profile_parameter("AdvOut", 'FFFilePath', RECORDING_DIR) # if using advanced recording settings in OBS studio
-    obs_client.set_profile_parameter("Output", "FilenameFormatting", RECORDING_NAME)
-    obs_client.set_profile_parameter("Output", 'OverwriteIfExists', 'true')
+    # obs_client.set_profile_parameter("Output", "FilenameFormatting", first_name)
+    # obs_client.set_profile_parameter("Output", 'OverwriteIfExists', 'true')
     return obs_client
 
-def communicate_xp(i, obs_client):
+def communicate_xp(manoeuvre_no, obs_client):
     with zmq.Context() as c:
         with c.socket(zmq.PUSH) as s:
             s.connect(f'tcp://{HOST}:{PORT_MANOEUVRE}')
-            s.send_json(i)
+            s.send_json(manoeuvre_no)
         with c.socket(zmq.PULL) as s:
             s.bind(f'tcp://{HOST}:{PORT_STREAM}')
             data = collect_data(s, obs_client)
@@ -106,17 +106,17 @@ def process_dataframe(values):
     df = df.iloc[1:-1]
     return df
 
-def plot_and_save(df, output_dir, manoeuvre_description):
+def plot_and_save(df, saves_dir, flight_description, manoeuvre_description):
     wanted_vars = [
         'pitch deviation', 'heading deviation', 'distance', 'indicated airspeed', 'pitch', 'angle of attack', 'sideslip angle', 'roll',
         'centre stick pitch ratio', 'centre stick roll ratio', 'rudder pedal ratio', 'throttle ratio'
     ]
     df.plot(kind='line', title=manoeuvre_description, y=wanted_vars, subplots=True, figsize=(20, 20))
-    plt.savefig(os.path.join(output_dir, 'plot.jpg'))
+    plt.savefig(os.path.join(saves_dir, f'{flight_description}.jpg'))
 
     df = df.round(2)
     df.index = df.index.round(2)
-    df.to_csv(os.path.join(output_dir, 'values.csv'))
+    df.to_csv(os.path.join(saves_dir, f'{flight_description}.csv'))
     return df
 
 def drop_unneeded_columns(df):
@@ -132,11 +132,8 @@ def drop_unneeded_columns(df):
     ], inplace=True)
     return df
 
-def generate_feedback(llm_client, df_to_csv, aircraft_type, i, manoeuvre_description, crashed, date_time, dir):
-    numbering = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh']
-    number = numbering[i]
-
-    system_content = f"""You are a flight instructor training new Air Force trainee pilots to visually track enemy aircraft on a {aircraft_type} simulator with a centre stick instead of a yoke. This is only their {number} session flying in a simulator, and they have not flown a real aircraft yet. You can assume that they are unknowledgeable about aviation, their aircraft layout, flight dynamics and basic fighter manoeuvres, likely only knowing about basic flight controls like centre stick and throttle inputs. Hence, you should explain terms likely foreign to trainees. Ensure that your input is precise, succinct and very reliable. If you are unsure of your input, say so. Your input is very important to trainees."""
+def generate_feedback(llm_client, df_to_csv, aircraft_type, flight_description, manoeuvre_description, crashed, dir, date_time):
+    system_content = f"""You are a flight instructor training new Air Force trainee pilots to visually track enemy aircraft on a {aircraft_type} simulator with a centre stick instead of a yoke. This is only their {flight_description} session flying in a simulator, and they have not flown a real aircraft yet. You can assume that they are unknowledgeable about aviation, their aircraft layout, flight dynamics and basic fighter manoeuvres, likely only knowing about basic flight controls like centre stick and throttle inputs. Hence, you should explain terms likely foreign to trainees. Ensure that your input is precise, succinct and very reliable. If you are unsure of your input, say so. Your input is very important to trainees."""
     user_content_qn = f"""Given the following flight data from an enemy tracking training flight of a pilot in a {aircraft_type}, generate detailed and specific feedback for the trainee pilot. When giving technical explanations, summarize them in plain, actionable language suitable for a beginner trainee. As the syllabus has already been determined, do not suggest training scenarios or self-directed practice. Your feedback should be encouraging and motivational, acknowledging what the pilot did well. The feedback should answer the 3 following questions: 'What are my goals? (keep the response to this question to 25 words) How am I doing? How to improve?'. Include no more than one point per question and keep your response to 200 words.
 
     {df_to_csv}
@@ -165,59 +162,61 @@ def generate_feedback(llm_client, df_to_csv, aircraft_type, i, manoeuvre_descrip
     elapsed_time = end_time - start_time    
     print(f"Response time: {elapsed_time:.2f} seconds")
 
-    write_log('prompt_characteristics.txt', f'at {date_time}, messages:\n\n{messages}\n\n\n\n', dir)
-    write_log('responses.txt', f'at {date_time}, response content:\n\n{response.content}\n\n\n\n', dir)
-    write_log('time_taken.txt', f'at {date_time}, time taken for response:\n\n{elapsed_time:.2f} s\n\n\n\n', dir)
+    write_log(dir, 'messages.txt', f'at {date_time}, messages:\n\n{messages}\n\n\n\n')
+    write_log(dir, 'responses.txt', f'at {date_time}, response content:\n\n{response.content}\n\n\n\n')
+    write_log(dir, 'time_taken.txt', f'at {date_time}, time taken for response:\n\n{elapsed_time:.2f} s\n\n\n\n')
     return response.content
 
 def suggest_variables(llm_client, feedback, available_vars):
     # could use function/tool calling (available on langchain and in gemini's own API) to get the LLM to suggest variables to plot against time to illustrate the points raised in feedback
     pass
 
-def write_log(filename, content, dir):
+def write_log(dir, filename, content):
     with open(os.path.join(dir, filename), 'a', encoding='utf-8') as f:
         f.write(content)
 
 def main():
-    obs_client = setup_obs()
-
     date_time = datetime.now()
     str_date_time = date_time.strftime("%d-%m-%Y %H%M%S")
-    intermediate_dir = f'values_and_plots/{str_date_time}/'
-    os.mkdir(intermediate_dir)
+    saves_dir = f'saves/{str_date_time}/'
+    os.makedirs(saves_dir)
+
+    obs_client = setup_obs(saves_dir)
     
     llm_client = ChatGoogleGenerativeAI(
         google_api_key=GOOGLE_API_KEY,
         model=MODEL_NAME
     )
 
-    for i in range(7):  # For 1 familiarisation, 1 pre-test, 7 manoeuvres and 1 post-test
-        print(f"\n--- Starting manoeuvre {i+1} ---\n")
-
+    for i in range(10):  # For 1 familiarisation, 1 pre-test, 7 manoeuvres and 1 post-test
         subprocess.run(['start', 'steam://run/2014780'], shell=True)
+        
+        manoeuvre_no = (8, 4, 1, 2, 3, 4, 5, 6, 7, 4)[i] # 8 spawns my aircraft facing away from the AI aircraft and at 3000 m elevation
+        flight_description = ['familiarisation', 'pre-test', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'post-test'][i]
+        print(f"\n--- Starting {flight_description} flight ---\n")
 
-        output_dir = os.path.join(intermediate_dir, f'{i}')
-        os.mkdir(output_dir)
+        obs_client.set_profile_parameter("Output", "FilenameFormatting", flight_description)
 
-        values, manoeuvre_description, aircraft_type, crashed = communicate_xp(i, obs_client)
-        print(f'Enemy aircraft is executing "{manoeuvre_description}"')
-
-        vlc_process = subprocess.Popen([VLC_PATH, '--play-and-exit', RECORDING_PATH])
+        values, manoeuvre_description, aircraft_type, crashed = communicate_xp(manoeuvre_no, obs_client)
 
         df = process_dataframe(values)
-        df = plot_and_save(df, output_dir, manoeuvre_description)
-        df = drop_unneeded_columns(df)
-        df_to_csv = df.to_csv()
+        df = plot_and_save(df, saves_dir, flight_description, manoeuvre_description)
+        if i in range(2, 9):
+            print(f'Enemy aircraft executed "{manoeuvre_description}"')
 
-        feedback = generate_feedback(llm_client, df_to_csv, aircraft_type, i, manoeuvre_description, crashed, date_time, intermediate_dir)
+            vlc_process = subprocess.Popen([VLC_PATH, '--play-and-exit', os.path.join(saves_dir, f'{flight_description}.mp4')])
+            df = drop_unneeded_columns(df)
+            df_to_csv = df.to_csv()
 
-        console = Console()
-        feedback = re.sub(r'(\*\*.+?\*\*)\n', r'\1  \n', feedback) # add 2 whitespaces after the double asterisk the LLM usually gives so markdown gives me a newline
-        md = Markdown(f"  \n--- Feedback for manoeuvre {i+1} ---  \n" + feedback)
-        while vlc_process.poll() is None:
-            time.sleep(1)
-        console.print(md)
-        time.sleep(30)
+            feedback = generate_feedback(llm_client, df_to_csv, aircraft_type, flight_description, manoeuvre_description, crashed, saves_dir, date_time)
+
+            console = Console()
+            feedback = re.sub(r'(\*\*.+?\*\*)\n', r'\1  \n', feedback) # add 2 whitespaces after the double asterisk the LLM usually gives so markdown gives me a newline
+            md = Markdown(f"  \n--- Feedback for manoeuvre {i+1} ---  \n" + feedback)
+            while vlc_process.poll() is None:
+                time.sleep(1)
+            console.print(md)
+            time.sleep(30)
 
 if __name__ == "__main__":
     main()
