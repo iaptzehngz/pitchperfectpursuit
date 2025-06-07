@@ -51,6 +51,9 @@ class PythonInterface:
         self.end_time = None
         
     def XPluginStart(self):
+        self.windowId = xp.createWindowEx(left=50, top=530, bottom=300, right=400,
+                                          visible=1,
+                                          draw=self.drawWindowCallback)
         manoeuvres = (
             ('straight and level flight', 0 / rad_to_deg, 0, 10, 20, 30),
             ('descend', 0 / rad_to_deg, -5, 10, 20, 30),
@@ -216,7 +219,7 @@ class PythonInterface:
         xp.log(f'at time {self.elapsed_time}, ai plane velocity is {v_ai_knots} and throttle ratio is {self.ai_plane.throttle_ratio}')
         return 1
 
-    def reportVars(self, _sinceLast, elapsedTime, _counter, _refcon):
+    def reportVars(self, _sinceLast, _elapsedTime, _counter, _refcon):
         if self.elapsed_time < 3: # the kias dataref stream starts at 0 knots at t = 0, stabilising around t = 4 s
             return 0.5
         vector_diff = self.ai_plane.position - self.my_plane.position
@@ -261,6 +264,12 @@ class PythonInterface:
                 xp.log(f'plane crashed so i changed quit time to {self.quit_elapsed_time} s')
         return 0.3
     
+    def drawWindowCallback(self, inWindowID, inRefcon):
+        (left, top, right, bottom) = xp.getWindowGeometry(inWindowID)
+        xp.drawTranslucentDarkBox(left, top, right, bottom)
+        color = 1.0, 1.0, 1.0
+        xp.drawString(color, left + 8, top - 18, self.manoeuvre, 0, xp.Font_Proportional)
+    
     def XPluginStop(self):
         sock.send_json({
             'stream': 'stop',
@@ -268,6 +277,7 @@ class PythonInterface:
             })
         sock.close()
         context.destroy()
+        xp.destroyWindow(self.windowId)
 
     def XPluginDisable(self):
         pass
