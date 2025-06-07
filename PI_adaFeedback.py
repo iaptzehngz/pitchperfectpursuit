@@ -3,6 +3,7 @@ from XPPython3.utils import commands
 import math
 import numpy as np
 import zmq
+import wave
 
 HOST = '127.0.0.1'
 PORT_STREAM = 5555
@@ -69,6 +70,9 @@ class PythonInterface:
             manoeuvre_no = sock_manoeuvre.recv_json()
             xp.log(f'manoeuvre no. {manoeuvre_no} with flight parameters {manoeuvres[manoeuvre_no - 1]}')
             self.manoeuvre, self.manoeuvre_roll, self.manoeuvre_vy, self.start_time, self.end_time, self.quit_elapsed_time = manoeuvres[manoeuvre_no - 1]
+
+        self.commandRef = xp.createCommand('custom/sound/gunshot', 'makes a gun sound')
+        xp.registerCommandHandler(self.commandRef, play_gunshot, 1, None)
         return "PI_stshmybae", "xppython3.ilovedsta", "Spawn aircraft and stream data"
     
     def XPluginEnable(self):
@@ -269,8 +273,13 @@ class PythonInterface:
         xp.drawTranslucentDarkBox(left, top, right, bottom)
         color = 1.0, 1.0, 1.0
         xp.drawString(color, left + 8, top - 18, self.manoeuvre, 0, xp.Font_Proportional)
-    
+        
     def XPluginStop(self):
+        if self.quit_first_run and self.loop_count: # to stop recording when flight starts and self.quit_elapsed_time is never reached - happens when quit xplane in flight on my own
+            sock.send_json({
+                'stream': 'recording',
+                'data': 'stop'
+                })
         sock.send_json({
             'stream': 'stop',
             'data': None
@@ -278,9 +287,16 @@ class PythonInterface:
         sock.close()
         context.destroy()
         xp.destroyWindow(self.windowId)
+        xp.unregisterCommandHandler(self.commandRef, play_gunshot, 1, None)
 
     def XPluginDisable(self):
         pass
+
+def play_gunshot(commandRef, phase, refCon):
+    if phase == 0:
+        w = wave.open('Resources/sounds/weapons/marikita.wav')
+        xp.playWaveOnBus(w, loop = 0, audioType = 7)
+    return 1
 
 def override_ai_autopilot(plane_index=None):
     if plane_index:
