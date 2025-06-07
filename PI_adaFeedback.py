@@ -15,20 +15,6 @@ rad_to_deg = 180/math.pi
 xz_normal = np.array((0, 1, 0))
 z_unit = np.array((0, 0, -1))
 
-FLOAT_DREFS = (
-    'sim/flightmodel/position/indicated_airspeed',
-    'sim/flightmodel/position/alpha'
-)
-
-INT_DREFS = (
-    'sim/flightmodel/failures/stallwarning',
-    'sim/flightmodel2/misc/has_crashed'
-)
-
-STR_DREFS = (
-    'sim/aircraft/view/acf_descrip'
-)
-
 class PythonInterface:
     def __init__(self):
         self.my_plane = None
@@ -72,7 +58,7 @@ class PythonInterface:
             ('gentle right turn', 30 / rad_to_deg, 0, 10, 20, 30),
             ('gentle left turn', -30 / rad_to_deg, 0, 10, 20, 30),
             ('steep right turn', 45 / rad_to_deg, 0, 10, 20, 30), # 90 deg turn
-            ('steep left turn', -45 / rad_to_deg, 0, 10, 20, 30) # but this gave me an extra 10 deg??
+            ('steep left turn', -45 / rad_to_deg, 0, 10, 20, 30), # but this gave me an extra 10 deg??
             ('familiarisation', 0, -1000, 0, 25, 120)
         )
         with context.socket(zmq.PULL) as sock_manoeuvre:
