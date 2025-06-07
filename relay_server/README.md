@@ -27,3 +27,10 @@
 
 1. With the relay_server conda environment activated, navigate to the relay server directory
 2. Start the program with `python server.py`
+
+### Relay server saves/output
+
+- In the relay server directory, there will be a `saves` folder containing
+	- `values.csv` with a stream of data every 0.3 s from X-Plane
+ - `plot.jpg` graph of some of the above variables against time
+ - `FLIGHT_DESCRIPTION.mp4` X-Plane recordings
