@@ -1,8 +1,6 @@
 
 # Relay Server
 
----
-
 ## Conda setup
 
 [Ensure conda is set up on your system](https://www.anaconda.com/docs/getting-started/miniconda/install "Installing Miniconda")
