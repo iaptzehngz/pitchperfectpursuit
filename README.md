@@ -1,3 +1,6 @@
-﻿# pitchperfectpursuit
+﻿# pitchperfectpursuit: Adaptive Training in Flight Simulators
+## with Dynamic Difficulty Adjustment and LLM-generated Feedback
 
-u need an api key dear jz paste into GOOGLE_API_KEY https://ai.google.dev/gemini-api/docs/api-key
+---
+
+## XPPython3
