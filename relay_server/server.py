@@ -4,19 +4,14 @@ import os
 import subprocess
 import psutil
 import zmq
-import obsws_python as obs
 import numpy
 import pandas as pd
 import matplotlib.pyplot as plt
-from langchain_community.document_loaders import TextLoader
-from langchain.text_splitter import MarkdownTextSplitter
-from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
-from langchain_community.vectorstores import FAISS
-from langchain_community.retrievers import BM25Retriever
-from langchain.retrievers import EnsembleRetriever
+import obsws_python as obs
+from langchain_google_genai import ChatGoogleGenerativeAI
+import re
 from rich.console import Console
 from rich.markdown import Markdown
-import re
 
 CWD = os.path.dirname(os.path.abspath(__file__))
 os.chdir(CWD)
