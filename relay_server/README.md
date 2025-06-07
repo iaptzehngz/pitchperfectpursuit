@@ -32,5 +32,5 @@
 
 - In the relay server directory, there will be a `saves` folder containing
 	- `values.csv` with a stream of data every 0.3 s from X-Plane
- - `plot.jpg` graph of some of the above variables against time
- - `FLIGHT_DESCRIPTION.mp4` X-Plane recordings
+	- `plot.jpg` graph of some of the above variables against time
+	- `FLIGHT_DESCRIPTION.mp4` X-Plane recordings
