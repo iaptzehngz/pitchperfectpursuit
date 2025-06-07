@@ -175,6 +175,9 @@ def write_log(dir, filename, content):
     with open(os.path.join(dir, filename), 'a', encoding='utf-8') as f:
         f.write(content)
 
+def format_md(feedback):
+    return re.sub(r'(\*\*.+?\*\*)\n', r'\1  \n', feedback) # add 2 whitespaces after the double asterisk the LLM usually gives so markdown gives me a newline
+
 def main():
     date_time = datetime.now()
     str_date_time = date_time.strftime("%d-%m-%Y %H%M%S")
@@ -211,11 +214,12 @@ def main():
             feedback = generate_feedback(llm_client, df_to_csv, aircraft_type, flight_description, manoeuvre_description, crashed, saves_dir, date_time)
 
             console = Console()
-            feedback = re.sub(r'(\*\*.+?\*\*)\n', r'\1  \n', feedback) # add 2 whitespaces after the double asterisk the LLM usually gives so markdown gives me a newline
+            feedback = format_md(feedback)
             md = Markdown(f"  \n--- Feedback for manoeuvre {i+1} ---  \n" + feedback)
             while vlc_process.poll() is None:
                 time.sleep(1)
             console.print(md)
+
             time.sleep(30)
 
 if __name__ == "__main__":
