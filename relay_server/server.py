@@ -181,7 +181,8 @@ def format_md(feedback):
 def main():
     date_time = datetime.now()
     str_date_time = date_time.strftime("%d-%m-%Y %H%M%S")
-    saves_dir = f'saves/{str_date_time}/'
+#    saves_dir = f'saves/{str_date_time}/'
+    saves_dir = os.path.join(CWD, 'saves', str_date_time)
     os.makedirs(saves_dir)
 
     obs_client = setup_obs(saves_dir)
@@ -194,7 +195,7 @@ def main():
     for i in range(10):  # For 1 familiarisation, 1 pre-test, 7 manoeuvres and 1 post-test
         subprocess.run(['start', 'steam://run/2014780'], shell=True)
         
-        manoeuvre_no = (8, 4, 1, 2, 3, 4, 5, 6, 7, 4)[i] # 8 spawns my aircraft facing away from the AI aircraft and at 3000 m elevation
+        manoeuvre_no = (8, 4, 1, 2, 3, 4, 5, 6, 7, 5)[i] # 8 spawns my aircraft facing away from the AI aircraft and at 3000 m elevation
         flight_description = ['familiarisation', 'pre-test', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'post-test'][i]
         print(f"\n--- Starting {flight_description} flight ---\n")
 
