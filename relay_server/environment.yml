@@ -1,0 +1,16 @@
+name: relay_server
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12
+  - numpy
+  - pandas
+  - matplotlib
+  - psutil
+  - pyzmq
+  - pip
+  - pip:
+      - langchain-google-genai
+      - obsws-python
+      - rich
