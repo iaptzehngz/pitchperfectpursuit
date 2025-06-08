@@ -1,8 +1,6 @@
 ﻿# pitchperfectpursuit
 Adaptive Training in Flight Simulators with Dynamic Difficulty Adjustment and LLM-generated Feedback
 
-**we need to put the pre n post test scores somewhere here**
-
 ## Project summary
 
 ## Installing software
