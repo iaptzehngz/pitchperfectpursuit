@@ -23,12 +23,7 @@
 2. Paste your API key into the `GOOGLE_API_KEY` constant in `server.py`
 	- Though doing the above is easier for testing, it is not secure and you should [set up your API key](https://ai.google.dev/gemini-api/docs/api-key#set-up-api-key) as an environment variable
 
-### Running the relay server
-
-1. With the relay_server conda environment activated, navigate to the relay server directory
-2. Start the program with `python server.py`
-
-### Relay server saves/output
+### Relay server saves/output [update for DDA]
 
 - In the relay server directory, there will be a `saves` folder containing
 	- `values.csv` with a stream of data every 0.3 s from X-Plane
