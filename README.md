@@ -44,7 +44,7 @@ Adaptive Training in Flight Simulators with Dynamic Difficulty Adjustment and LL
 
 ### Configuring `server.py`
 
-- In `server.py`, verify that the paths to the VLC and OBS Studio program are correct
+- In `server.py`, verify that the paths to the VLC and OBS Studio programs are correct
 
 #### *For LLM Feedback only:* [Getting an LLM API key (Gemini)](https://ai.google.dev/gemini-api/docs/api-key)
 
