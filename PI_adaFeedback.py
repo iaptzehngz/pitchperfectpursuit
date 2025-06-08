@@ -44,12 +44,11 @@ class PythonInterface:
         self.quit_elapsed_time = 0.0
         self.quit_first_run = True
 
-        # manoeuvre details
         self.manoeuvre = None
-        self.manoeuvre_roll =  None #/ rad_to_deg
-        self.manoeuvre_vy = None
-        self.start_time = 10
-        self.end_time = 25
+        self.manoeuvre_roll =  0.0 #/ rad_to_deg
+        self.manoeuvre_vy = 0.0
+        self.start_time = 10.0
+        self.end_time = 25.0
         
     def XPluginStart(self):
         self.windowId = xp.createWindowEx(left=50, top=530, bottom=300, right=400,
@@ -61,8 +60,8 @@ class PythonInterface:
             ('climb', 0 / rad_to_deg, 5, 30),
             ('gentle right turn', 30 / rad_to_deg, 0, 30),
             ('gentle left turn', -30 / rad_to_deg, 0, 30),
-            ('steep right turn', 45 / rad_to_deg, 0, 30), # 90 deg turn
-            ('steep left turn', -45 / rad_to_deg, 0, 30), # but this gave me an extra 10 deg??
+            ('steep right turn', 45 / rad_to_deg, 0, 30),
+            ('steep left turn', -45 / rad_to_deg, 0, 30),
             ('familiarisation', 0, -1000, 0, 25, 120)
         )
         with context.socket(zmq.PULL) as sock_manoeuvre:
