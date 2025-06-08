@@ -134,7 +134,7 @@ class PythonInterface:
             'data': f'{self.manoeuvre} from {self.start_time} to {self.end_time} seconds'
             })
         
-        distance_from_ai = 400
+        distance_from_ai = 300
 
         # x and z coordinates of paya lebar air base runway 02 for terrain (lack of mountains)
         # but i need to spawn myself into an area close enough to singapore
