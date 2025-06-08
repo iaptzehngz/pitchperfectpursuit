@@ -85,7 +85,7 @@ def collect_data(sock, obs_client):
     return values, manoeuvre_description, aircraft_type, crashed
 
 def process_dataframe(values):
-    df = pd.DataFrame(values)
+    df = pd.DataFrame(values[:-1])
     df['Δt'] = df['t'].diff()
     df = df.set_index('t')
     df['pitch deviation'] = df['pitch'] - df['ideal pitch']
@@ -96,10 +96,12 @@ def process_dataframe(values):
     df['pitch rate'] = df['pitch'].diff() / df['Δt']
     df['roll rate'] = df['roll'].diff() / df['Δt']
     df['in front of or behind enemy plane'] = ['behind' if aa < 90 else 'in front' for aa in df['aspect angle']]
-    df['pitch deviation grade'] = ['visible' if abs(pdev) < 8 else 'lost sight' for pdev in df['pitch deviation']]
-    df['heading deviation grade'] = ['visible' if abs(hdev) < 30 else 'lost sight' for hdev in df['heading deviation']]
-    df = df.iloc[1:-1]
-    return df
+    df['pdev ok bo'] = [True if abs(pdev) < 5 else False for pdev in df['pitch deviation']]
+    df['hdev ok bo'] = [True if abs(hdev) < 5 else False for hdev in df['heading deviation']]
+    df['dist ok bo'] = [True if d > 152.4 and d < 457.2 else False for d in df['distance']]
+    n = len(df.index)
+    pob, hob, dob = df[['pdev ok bo', 'hdev ok bo', 'dist ok bo']].sum() / n * 100
+    return df, pob, hob, dob
 
 def plot_and_save(df, saves_dir, flight_description, manoeuvre_description):
     wanted_vars = [
@@ -114,7 +116,7 @@ def plot_and_save(df, saves_dir, flight_description, manoeuvre_description):
     df.to_csv(os.path.join(saves_dir, f'{flight_description}.csv'))
     return df
 
-def drop_unneeded_columns(df):
+def slice_and_dice(df):
     df.drop(columns=[
         'Δt', 
         'sideslip angle', 
@@ -122,9 +124,9 @@ def drop_unneeded_columns(df):
         'aspect angle', 
         # 'pitch rate', 'roll rate',
         'rate of change of indicated airspeed',
-        # 'centre stick pitch ratio', 'centre stick roll ratio', 'rudder pedal ratio',
-        'pitch deviation grade', 'heading deviation grade'
+        # 'centre stick pitch ratio', 'centre stick roll ratio', 'rudder pedal ratio'
     ], inplace=True)
+    df = df[df.index > 4] # the kias dataref stream starts at 0 knots at t = 0, stabilising around t = 4 s
     return df
 
 def generate_feedback(llm_client, df_to_csv, aircraft_type, flight_description, manoeuvre_description, crashed, dir, date_time):
@@ -187,7 +189,7 @@ def main():
         model=MODEL_NAME
     )
 
-    for i in range(10):  # For 1 familiarisation, 1 pre-test, 7 manoeuvres and 1 post-test
+    for i in range(10):
         subprocess.run(['start', 'steam://run/2014780'], shell=True)
         
         manoeuvre_no = (8, 4, 1, 2, 3, 4, 5, 6, 7, 5)[i] # 8 spawns my aircraft facing away from the AI aircraft and at 3000 m elevation
@@ -198,13 +200,15 @@ def main():
 
         values, manoeuvre_description, aircraft_type, crashed = communicate_xp(manoeuvre_no, obs_client)
 
-        df = process_dataframe(values)
+        df, pob, hob, dob = process_dataframe(values)
         df = plot_and_save(df, saves_dir, flight_description, manoeuvre_description)
+        if i in (1, 9):
+            write_log(saves_dir, 'scores.txt', f'**{flight_description}**:\n\n%time within:\nabs(pitch dev<5deg): {pob}, \nabs(heading dev<5deg): {hob}, \n500ft<distance<1500ft: {dob}\n\n\n\n')
         if i in range(2, 9):
             print(f'Enemy aircraft executed "{manoeuvre_description}"')
 
             vlc_process = subprocess.Popen([VLC_PATH, '--play-and-exit', os.path.join(saves_dir, f'{flight_description}.mp4')])
-            df = drop_unneeded_columns(df)
+            df = slice_and_dice(df)
             df_to_csv = df.to_csv()
 
             feedback = generate_feedback(llm_client, df_to_csv, aircraft_type, flight_description, manoeuvre_description, crashed, saves_dir, date_time)
