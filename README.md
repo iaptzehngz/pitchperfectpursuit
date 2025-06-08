@@ -5,7 +5,7 @@ Adaptive Training in Flight Simulators with Dynamic Difficulty Adjustment and LL
 
 ## Project summary
 
-## Installing software & content
+## Installing software
 
 - [X-Plane 12](https://store.steampowered.com/app/2014780/XPlane_12/)
 	- [X-Plane 12 Global Scenery](https://store.steampowered.com/dlc/2014780/XPlane_12/)
