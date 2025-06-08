@@ -48,28 +48,28 @@ class PythonInterface:
         self.manoeuvre = None
         self.manoeuvre_roll =  None #/ rad_to_deg
         self.manoeuvre_vy = None
-        self.start_time = None
-        self.end_time = None
+        self.start_time = 10
+        self.end_time = 25
         
     def XPluginStart(self):
         self.windowId = xp.createWindowEx(left=50, top=530, bottom=300, right=400,
                                           visible=1,
                                           draw=self.drawWindowCallback)
         manoeuvres = (
-            ('straight and level flight', 0 / rad_to_deg, 0, 10, 20, 30),
-            ('descend', 0 / rad_to_deg, -5, 10, 20, 30),
-            ('climb', 0 / rad_to_deg, 5, 10, 20, 30),
-            ('gentle right turn', 30 / rad_to_deg, 0, 10, 20, 30),
-            ('gentle left turn', -30 / rad_to_deg, 0, 10, 20, 30),
-            ('steep right turn', 45 / rad_to_deg, 0, 10, 20, 30), # 90 deg turn
-            ('steep left turn', -45 / rad_to_deg, 0, 10, 20, 30), # but this gave me an extra 10 deg??
+            ('straight and level flight', 0 / rad_to_deg, 0, 30),
+            ('descend', 0 / rad_to_deg, -5, 30),
+            ('climb', 0 / rad_to_deg, 5, 30),
+            ('gentle right turn', 30 / rad_to_deg, 0, 30),
+            ('gentle left turn', -30 / rad_to_deg, 0, 30),
+            ('steep right turn', 45 / rad_to_deg, 0, 30), # 90 deg turn
+            ('steep left turn', -45 / rad_to_deg, 0, 30), # but this gave me an extra 10 deg??
             ('familiarisation', 0, -1000, 0, 25, 120)
         )
         with context.socket(zmq.PULL) as sock_manoeuvre:
             sock_manoeuvre.bind(f"tcp://{HOST}:{PORT_MANOEUVRE}")
             manoeuvre_no = sock_manoeuvre.recv_json()
             xp.log(f'manoeuvre no. {manoeuvre_no} with flight parameters {manoeuvres[manoeuvre_no - 1]}')
-            self.manoeuvre, self.manoeuvre_roll, self.manoeuvre_vy, self.start_time, self.end_time, self.quit_elapsed_time = manoeuvres[manoeuvre_no - 1]
+            self.manoeuvre, self.manoeuvre_roll, self.manoeuvre_vy, self.quit_elapsed_time = manoeuvres[manoeuvre_no - 1]
 
         self.commandRef = xp.createCommand('custom/sound/gunshot', 'makes a gun sound')
         xp.registerCommandHandler(self.commandRef, play_gunshot, 1, None)
