@@ -1,0 +1,10 @@
+name: relay_server
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12
+  - numpy
+  - pip
+  - pip:
+      - obsws-python
