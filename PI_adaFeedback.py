@@ -62,7 +62,7 @@ class PythonInterface:
             ('gentle left turn', -30 / rad_to_deg, 0, 30),
             ('steep right turn', 45 / rad_to_deg, 0, 30),
             ('steep left turn', -45 / rad_to_deg, 0, 30),
-            ('familiarisation', 0, -1000, 0, 25, 120)
+            ('familiarisation', 0, -1000, 120)
         )
         with context.socket(zmq.PULL) as sock_manoeuvre:
             sock_manoeuvre.bind(f"tcp://{HOST}:{PORT_MANOEUVRE}")
