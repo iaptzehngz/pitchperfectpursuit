@@ -46,7 +46,7 @@ Adaptive Training in Flight Simulators with Dynamic Difficulty Adjustment and LL
 
 - In `server.py`, verify that the paths to the VLC and OBS Studio program are correct
 
-#### **For LLM Feedback only** [Getting an LLM API key (Gemini)](https://ai.google.dev/gemini-api/docs/api-key)
+#### *For LLM Feedback only:* [Getting an LLM API key (Gemini)](https://ai.google.dev/gemini-api/docs/api-key)
 
 1. [Get a Gemini API key in Google AI Studio](https://aistudio.google.com/app/apikey)
 2. Paste your API key into the `GOOGLE_API_KEY` constant in `server.py`
