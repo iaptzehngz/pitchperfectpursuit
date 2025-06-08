@@ -31,7 +31,7 @@ Adaptive Training in Flight Simulators with Dynamic Difficulty Adjustment and LL
 1. [Add sources to your scenes](https://obsproject.com/kb/quick-start-guide)
 2. [Enable websocket server](https://obsproject.com/kb/remote-control-guide)
 	1. Navigate to Tools > WebSocket Server Settings
-  2. Check the "Enable WebSockets server" box
+	2. Check the "Enable WebSockets server" box
 
 ### Copying files into X-Plane
 
