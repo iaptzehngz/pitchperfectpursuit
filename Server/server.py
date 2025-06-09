@@ -167,6 +167,7 @@ def format_md(feedback):
 
 def main():
     name = input("Enter your name: ")
+    name = name.upper()
     date_time = datetime.now()
     str_date_time = date_time.strftime("%d-%m-%Y %H%M%S")
     saves_dir = os.path.join(CWD, 'saves', f'{name} {str_date_time}')
