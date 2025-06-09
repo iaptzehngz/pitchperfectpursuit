@@ -166,9 +166,10 @@ def format_md(feedback):
     return re.sub(r'(\*\*.+?\*\*)\n', r'\1  \n', feedback) # add 2 whitespaces after the double asterisk the LLM usually gives so markdown gives me a newline
 
 def main():
+    name = input("Enter your name: ")
     date_time = datetime.now()
     str_date_time = date_time.strftime("%d-%m-%Y %H%M%S")
-    saves_dir = os.path.join(CWD, 'saves', str_date_time)
+    saves_dir = os.path.join(CWD, 'saves', f'{name} {str_date_time}')
     os.makedirs(saves_dir)
 
     obs_client = setup_obs(saves_dir)
@@ -210,6 +211,10 @@ def main():
             console.print(md)
 
             time.sleep(30)
+
+    feedback_rating = input("On a scale of 1 to 5, how useful was the feedback? ")
+    feedback_feedback = input("Any feedback on the feedback? ")
+    write_log(saves_dir, 'rating.txt', f'feedback rating from 1 to 5:\n{feedback_rating}\nfeedback on feedback:\n{feedback_feedback}')
 
 if __name__ == "__main__":
     main()
