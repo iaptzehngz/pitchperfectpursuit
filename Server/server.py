@@ -24,10 +24,6 @@ MODEL_NAME = "gemini-2.5-flash-preview-05-20"
 GOOGLE_API_KEY = "AIzaSyDh7u2AuBEfk_O_IuhuA0A2wIw6pXczlfE"
 
 OBS_PATH = "C:\\Program Files\\obs-studio\\bin\\64bit\\obs64.exe"
-# RECORDING_DIR = CWD
-# RECORDING_NAME = "I love DSTA"
-# RECORDING_PATH = os.path.join(RECORDING_DIR, RECORDING_NAME + '.mp4')
-
 VLC_PATH = "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe"
 
 def setup_obs(saves_dir):
@@ -44,8 +40,6 @@ def setup_obs(saves_dir):
     obs_client = obs.ReqClient() # default args: host='localhost', port=4455, password='', timeout=None
     obs_client.set_record_directory(saves_dir)
     # obs_client.set_profile_parameter("AdvOut", 'FFFilePath', RECORDING_DIR) # if using advanced recording settings in OBS studio
-    # obs_client.set_profile_parameter("Output", "FilenameFormatting", first_name)
-    # obs_client.set_profile_parameter("Output", 'OverwriteIfExists', 'true')
     return obs_client
 
 def communicate_xp(manoeuvre_no, obs_client):
@@ -164,10 +158,6 @@ def generate_feedback(llm_client, df_to_csv, aircraft_type, flight_description, 
     write_log(dir, 'time_taken.txt', f'at {date_time}, time taken for response:\n\n{elapsed_time:.2f} s\n\n\n\n')
     return response.content
 
-def suggest_variables(llm_client, feedback, available_vars):
-    # could use function/tool calling (available on langchain and in gemini's own API) to get the LLM to suggest variables to plot against time to illustrate the points raised in feedback
-    pass
-
 def write_log(dir, filename, content):
     with open(os.path.join(dir, filename), 'a', encoding='utf-8') as f:
         f.write(content)
@@ -178,7 +168,6 @@ def format_md(feedback):
 def main():
     date_time = datetime.now()
     str_date_time = date_time.strftime("%d-%m-%Y %H%M%S")
-#    saves_dir = f'saves/{str_date_time}/'
     saves_dir = os.path.join(CWD, 'saves', str_date_time)
     os.makedirs(saves_dir)
 
