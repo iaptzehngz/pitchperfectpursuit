@@ -1,5 +1,6 @@
 import time
 from datetime import datetime
+import csv
 import os
 import subprocess
 import psutil
@@ -158,12 +159,20 @@ def generate_feedback(llm_client, df_to_csv, aircraft_type, flight_description, 
     write_log(dir, 'time_taken.txt', f'at {date_time}, time taken for response:\n\n{elapsed_time:.2f} s\n\n\n\n')
     return response.content
 
-def write_log(dir, filename, content):
+def write_log(dir: str, filename: str, content: str):
     with open(os.path.join(dir, filename), 'a', encoding='utf-8') as f:
         f.write(content)
 
 def format_md(feedback):
     return re.sub(r'(\*\*.+?\*\*)\n', r'\1  \n', feedback) # add 2 whitespaces after the double asterisk the LLM usually gives so markdown gives me a newline
+
+def write_csv(dir: str, filename: str, columns: iter, content: iter):
+    file_path = os.path.join(dir, filename)
+    with open(file_path, 'a', encoding='utf-8') as csvfile:
+        writer = csv.writer()
+        if not os.path.exists(file_path):
+            writer.writerow(columns)
+        writer.writerow(content)
 
 def main():
     name = input("Enter your name: ")
