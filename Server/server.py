@@ -91,12 +91,12 @@ def process_dataframe(values):
     df['pitch rate'] = df['pitch'].diff() / df['Δt']
     df['roll rate'] = df['roll'].diff() / df['Δt']
     df['in front of or behind enemy plane'] = ['behind' if aa < 90 else 'in front' for aa in df['aspect angle']]
+    df['dist ok bo'] = [True if d > 152.4 and d < 457.2 else False for d in df['distance']]
     df['pdev ok bo'] = [True if abs(pdev) < 5 else False for pdev in df['pitch deviation']]
     df['hdev ok bo'] = [True if abs(hdev) < 5 else False for hdev in df['heading deviation']]
-    df['dist ok bo'] = [True if d > 152.4 and d < 457.2 else False for d in df['distance']]
     n = len(df.index)
-    pob, hob, dob = df[['pdev ok bo', 'hdev ok bo', 'dist ok bo']].sum() / n * 100
-    return df, pob, hob, dob
+    dob, pob, hob = df[['dist ok bo', 'pdev ok bo', 'hdev ok bo']].sum() / n * 100
+    return df, dob, pob, hob
 
 def plot_and_save(df, saves_dir, flight_description, manoeuvre_description):
     wanted_vars = [
@@ -166,7 +166,7 @@ def write_log(dir: str, filename: str, content: str):
 def format_md(feedback):
     return re.sub(r'(\*\*.+?\*\*)\n', r'\1  \n', feedback) # add 2 whitespaces after the double asterisk the LLM usually gives so markdown gives me a newline
 
-def write_csv(dir: str, filename: str, columns: iter, content: iter):
+def write_trainee_csv(dir: str, filename: str, columns: list, content: list):
     file_path = os.path.join(dir, filename)
     with open(file_path, 'a', encoding='utf-8') as csvfile:
         writer = csv.writer()
@@ -200,10 +200,10 @@ def main():
 
         values, manoeuvre_description, aircraft_type, crashed = communicate_xp(manoeuvre_no, obs_client)
 
-        df, pob, hob, dob = process_dataframe(values)
+        df, dob, pob, hob = process_dataframe(values)
         df = plot_and_save(df, saves_dir, flight_description, manoeuvre_description)
         if i in (1, 9):
-            write_log(saves_dir, 'scores.txt', f'**{flight_description}**:\n\n%time within:\nabs(pitch dev<5deg): {pob}, \nabs(heading dev<5deg): {hob}, \n500ft<distance<1500ft: {dob}\n\n\n\n')
+            write_log(saves_dir, 'scores.txt', f'**{flight_description}**:\n\n%time within:\n500ft<distance<1500ft: {dob},\nabs(pitch dev<5deg): {pob}, \nabs(heading dev<5deg): {hob}\n\n\n\n')
         if i in range(2, 9):
             print(f'Enemy aircraft executed "{manoeuvre_description}"')
 
@@ -225,6 +225,7 @@ def main():
     feedback_rating = input("On a scale of 1 to 5, how useful was the feedback? ")
     feedback_feedback = input("Any feedback on the feedback? ")
     write_log(saves_dir, 'rating.txt', f'feedback rating from 1 to 5:\n{feedback_rating}\nfeedback on feedback:\n{feedback_feedback}')
+    write_trainee_csv(CWD, 'trainee_data.csv', trainee_data_cols, trainee_data)
 
 if __name__ == "__main__":
     main()
