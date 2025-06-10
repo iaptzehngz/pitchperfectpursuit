@@ -168,7 +168,7 @@ def format_md(feedback):
 def rating(group):
     while True:
         try:
-            rating = int(input(f"On a scale of 1 to 5, how useful was the {group}? "))
+            rating = int(input(f"On a scale of 1 to 5, how useful was the {group}?\n"))
             if rating in range(1, 6):
                 break
             else:
@@ -180,7 +180,7 @@ def rating(group):
 def write_trainee_csv(dir: str, filename: str, columns: list, content: list):
     file_path = os.path.join(dir, filename)
     file_exists = os.path.exists(file_path)
-    with open(file_path, 'a', encoding='utf-8') as csvfile:
+    with open(file_path, 'a', encoding='utf-8', newline='') as csvfile:
         writer = csv.writer(csvfile)
         if not file_exists:
             writer.writerow(columns)
@@ -235,7 +235,7 @@ def main():
 
             time.sleep(30)
     feedback_rating = rating('feedback')
-    feedback_feedback = input("Any feedback on the feedback? ")
+    feedback_feedback = input("Any feedback on the feedback?\n")
 #    write_log(saves_dir, 'rating.txt', f'feedback rating from 1 to 5:\n{feedback_rating}\nfeedback on feedback:\n{feedback_feedback}')
     trainee_data.extend((feedback_rating, feedback_feedback))
     trainee_data_cols = ['group, name, strdatetime, pre dob, pre pob, pre hob, post dob, post pob, post hob, rating, feedback']
