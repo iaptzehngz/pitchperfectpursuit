@@ -70,8 +70,8 @@ class PythonInterface:
         with context.socket(zmq.PULL) as sock_manoeuvre:
             sock_manoeuvre.bind(f"tcp://{HOST}:{PORT_MANOEUVRE}")
             manoeuvre_no = sock_manoeuvre.recv_json()
-            xp.log(f'manoeuvre no. {manoeuvre_no} with flight parameters {manoeuvres[manoeuvre_no - 1]}')
-            self.manoeuvre, self.manoeuvre_roll, self.manoeuvre_vy, self.manoeuvre_throttle, self.quit_elapsed_time = manoeuvres[manoeuvre_no - 1]
+            xp.log(f'manoeuvre no. {manoeuvre_no} with flight parameters {manoeuvres[manoeuvre_no]}')
+            self.manoeuvre, self.manoeuvre_roll, self.manoeuvre_vy, self.manoeuvre_throttle, self.quit_elapsed_time = manoeuvres[manoeuvre_no]
 
         self.commandRef = xp.createCommand('custom/sound/gunshot', 'makes a gun sound')
         xp.registerCommandHandler(self.commandRef, play_gunshot, 1, None)
