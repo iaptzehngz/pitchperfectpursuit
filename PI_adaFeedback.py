@@ -52,9 +52,6 @@ class PythonInterface:
         self.end_time = 25.0
         
     def XPluginStart(self):
-        self.windowId = xp.createWindowEx(left=50, top=530, bottom=300, right=400,
-                                          visible=1,
-                                          draw=self.drawWindowCallback)
         manoeuvres = (
             ('familiarisation', 0, -1000, 1.0, 120), # fam
             ('climbing left turn', -45, 5, 1.0, 30), # pre-training
@@ -278,12 +275,6 @@ class PythonInterface:
                 self.quit_elapsed_time = self.elapsed_time + 2
                 xp.log(f'plane crashed so i changed quit time to {self.quit_elapsed_time} s')
         return 0.3
-    
-    def drawWindowCallback(self, inWindowID, inRefcon):
-        (left, top, right, bottom) = xp.getWindowGeometry(inWindowID)
-        xp.drawTranslucentDarkBox(left, top, right, bottom)
-        color = 1.0, 1.0, 1.0
-        xp.drawString(color, left + 8, top - 18, self.manoeuvre, 0, xp.Font_Proportional)
         
     def XPluginStop(self):
         if self.quit_first_run and self.loop_count: # to stop recording when flight starts and self.quit_elapsed_time is never reached - happens when quit xplane in flight on my own
@@ -297,7 +288,6 @@ class PythonInterface:
             })
         sock.close()
         context.destroy()
-        xp.destroyWindow(self.windowId)
         xp.unregisterCommandHandler(self.commandRef, play_gunshot, 1, None)
 
     def XPluginDisable(self):
