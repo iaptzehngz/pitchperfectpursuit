@@ -15,12 +15,16 @@ Adaptive Training in Flight Simulators with Dynamic Difficulty Adjustment and LL
 
 ## Configuring programs
 
+### Downloading resources
+
+[Download the required resources](https://docs.github.com/en/repositories/working-with-files/using-files/downloading-source-code-archives#downloading-source-code-archives-from-the-repository-view).
+
 ### Creating and activating Python environment for `server.py`
 
 [Set up environment for relay server](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-from-an-environment-yml-file "creating environment from environment.yml file"):
 1. Create the environment from the `environment.yml` file found in the wanted `Server` folder:
 	1. [Start conda](https://docs.conda.io/projects/conda/en/stable/user-guide/getting-started.html#starting-conda)
-	2. Navigate to the relay server directory with `cd PATH_TO_RELAY_SERVER_DIRECTORY`
+	2. Navigate to the relay server directory with [`cd`](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/cd)
 	3. Run `conda env create -f environment.yml`
 2. Activate the new environment:
 	1. Run `conda activate relay_server`

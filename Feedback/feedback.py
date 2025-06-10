@@ -22,7 +22,7 @@ PORT_STREAM = 5555
 PORT_MANOEUVRE = 6666
 
 MODEL_NAME = "gemini-2.5-flash-preview-05-20"
-GOOGLE_API_KEY = "AIzaSyDh7u2AuBEfk_O_IuhuA0A2wIw6pXczlfE"
+GOOGLE_API_KEY = "MY API KEY"
 
 OBS_PATH = "C:\\Program Files\\obs-studio\\bin\\64bit\\obs64.exe"
 VLC_PATH = "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe"
