@@ -15,9 +15,23 @@ Adaptive Training in Flight Simulators with Dynamic Difficulty Adjustment and LL
 
 ## Configuring programs
 
-### Downloading resources
+### Downloading and moving resources
 
 [Download the required resources](https://docs.github.com/en/repositories/working-with-files/using-files/downloading-source-code-archives#downloading-source-code-archives-from-the-repository-view).
+
+#### Copying files into X-Plane
+
+- `gunshot.wav` in `"X-Plane 12\Resources\sounds\weapons"`
+- `cockpit_crosshair` in `"X-Plane 12\Aircraft\Laminar Research\Cessna 172 SP\plugins\xlua\scripts\cockpit_crosshair"`
+- For control experiment:
+	- `Control/PI_control` in `"X-Plane 12\Resources\plugins\PythonPlugins"`
+	- `Control/control.py` in any directory 
+- For DDA experiment:
+  	- `DDA/PI_DDA` in `"X-Plane 12\Resources\plugins\PythonPlugins"`
+  	- `DDA/dda.py` in any directory
+- For feedback experiment:
+ 	- `Feedback/PI_adaFeedback` in `"X-Plane 12\Resources\plugins\PythonPlugins"`
+	- `Feedback/feedback.py` in any directory
 
 ### Creating and activating Python environment for `server.py`
 
@@ -36,18 +50,13 @@ Adaptive Training in Flight Simulators with Dynamic Difficulty Adjustment and LL
 	1. Navigate to Tools > WebSocket Server Settings
 	2. Check the "Enable WebSockets server" box
 
-### Copying files into X-Plane
-
-- `gunshot.wav` in `"X-Plane 12\Resources\sounds\weapons"`
-- `cockpit_crosshair` in `"X-Plane 12\Aircraft\Laminar Research\Cessna 172 SP\plugins\xlua\scripts\cockpit_crosshair"`
-
 ### Configuring XPPython3
 
 - [Install `pyzmq` package](https://xppython3.readthedocs.io/en/latest/usage/pip.html)
 
-### Configuring `server.py`
+### Configuring `control.py`, `dda.py` or `feedback.py`
 
-- In `server.py`, verify that the paths to the [VLC Media Player](https://www.google.com/search?q=path+to+vlc+media+player) and [OBS Studio](https://www.google.com/search?q=path+to+obs+studio) programs are correct
+- In the above files, verify that the paths to the [VLC Media Player](https://www.google.com/search?q=path+to+vlc+media+player) and [OBS Studio](https://www.google.com/search?q=path+to+obs+studio) programs are correct
 
 #### *For LLM Feedback only:* [Getting an LLM API key (Gemini)](https://ai.google.dev/gemini-api/docs/api-key)
 
