@@ -56,14 +56,16 @@ class PythonInterface:
                                           visible=1,
                                           draw=self.drawWindowCallback)
         manoeuvres = (
-            ('straight and level flight', 0 / rad_to_deg, 0, 0.75, 30),
-            ('descend', 0 / rad_to_deg, -5, 0.5, 30),
-            ('climb', 0 / rad_to_deg, 5, 1.0, 30),
-            ('gentle right turn', 30 / rad_to_deg, 0, 1.0, 30),
-            ('gentle left turn', -30 / rad_to_deg, 0, 1.0, 30),
-            ('steep right turn', 45 / rad_to_deg, 0, 1.0, 30),
-            ('steep left turn', -45 / rad_to_deg, 0, 1.0, 30),
-            ('familiarisation', 0, -1000, 1.0, 120)
+            ('familiarisation', 0, -1000, 1.0, 120), # fam
+            ('climbing left turn', -45, 5, 1.0, 30), # pre-training
+            ('straight and level flight', 0, 0, 0.75, 30),
+            ('descend', 0, -5, 0.5, 30),
+            ('climb', 0, 5, 1.0, 30),
+            ('gentle right turn', 30, 0, 1.0, 30),
+            ('steep left turn', -45, 0, 1.0, 30),
+            ('descending right turn', 45, 5, 1.0, 30),
+            ('climbing left turn', -45, 5, 1.0, 30),
+            ('climbing right turn', 45, 5, 1.0, 30)
         )
         with context.socket(zmq.PULL) as sock_manoeuvre:
             sock_manoeuvre.bind(f"tcp://{HOST}:{PORT_MANOEUVRE}")
@@ -193,7 +195,7 @@ class PythonInterface:
         current_roll = self.ai_plane.roll / rad_to_deg
 
         if self.elapsed_time > self.start_time and self.elapsed_time < self.end_time:
-            difference = current_roll - self.manoeuvre_roll
+            difference = current_roll - self.manoeuvre_roll / rad_to_deg
             self.ai_plane.yoke_roll_ratio = math.tanh(difference) * -1
             return 0.5
                 
@@ -219,7 +221,7 @@ class PythonInterface:
             xp.log(f'at time {self.elapsed_time}, throttle ratio is {self.ai_plane.throttle_ratio}')
             return 0.5
         
-        self.ai_plane.throttle_ratio = 0.7
+        self.ai_plane.throttle_ratio = 0.75
         return 1
 
     def thrustAISpeed(self, _sinceLast, _elapsedTime, _counter, _refcon):

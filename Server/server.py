@@ -192,13 +192,12 @@ def main():
     for i in range(10):
         subprocess.run(['start', 'steam://run/2014780'], shell=True)
         
-        manoeuvre_no = (8, 4, 1, 2, 3, 4, 5, 6, 7, 5)[i] # 8 spawns my aircraft facing away from the AI aircraft and at 3000 m elevation
-        flight_description = ['familiarisation', 'pre-test', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'post-test'][i]
+        flight_description = ['familiarisation', 'pre-training', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'post-training'][i]
         print(f"\n--- Starting {flight_description} flight ---\n")
 
         obs_client.set_profile_parameter("Output", "FilenameFormatting", flight_description)
 
-        values, manoeuvre_description, aircraft_type, crashed = communicate_xp(manoeuvre_no, obs_client)
+        values, manoeuvre_description, aircraft_type, crashed = communicate_xp(i, obs_client)
 
         df, dob, pob, hob = process_dataframe(values)
         df = plot_and_save(df, saves_dir, flight_description, manoeuvre_description)
