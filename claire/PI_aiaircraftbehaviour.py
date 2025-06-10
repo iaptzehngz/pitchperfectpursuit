@@ -67,15 +67,15 @@ class PythonInterface:
         xp.acquirePlanes()
 
         self.vars = (
-                    (0, 120, 0.9, 0, 0, 'Welcome to flight training! You have 2 minutes to get familiar with the controls. Enjoy!'),
-                    (1, 30, 0.9, 0, 0, 'Hold steady and fly level'),
-                    (2, 30, 0.9, -5, 0, 'Try descending with the plane'),
+                    (0, 120, 0.6, 0, 0, 'Welcome to flight training! You have 2 minutes to get familiar with the controls. Enjoy!'),
+                    (1, 30, 0.6, 0, 0, 'Hold steady and fly level'),
+                    (2, 30, 0.6, -5, 0, 'Try descending with the plane'),
                     (3, 30, 1, 5, 0, 'Try climbing with the plane'),
                     (4, 30, 1, 0, 30, 'Execute a gentle turn now'),
                     (5, 30, 1, 0, 50, 'Now execute a steep turn'),
-                    (6, 30, 1, -5, 30, 'Can you try a descending turn?'),
+                    (6, 30, 1, -5, 50, 'Can you try a descending turn?'),
                     (7, 30, 1, 5, 30, 'Do a climbing turn!'),
-                    (8, 30, 1, 5, 30, 'Track the enemy plane as best as you can, good luck!')
+                    (8, 30, 1, 5, 50, 'Track the enemy plane as best as you can, good luck!')
                     )
         
         #spawn function
@@ -102,6 +102,8 @@ class PythonInterface:
 
         #quit function
         self.timer = 0
+        self.t_first = 0
+        self.reset_t = False
 
         #window
         self.once = False
@@ -122,11 +124,10 @@ class PythonInterface:
     
     def spawn(self, sinceLast, elapsedSim, counter, refCon):
         ai_heading = xp.getDataf(self.aiheadingDR)
-        ai_roll = xp.getDataf(self.airollDR)
         ai_speedx = xp.getDataf(self.aispeedDR_x)
         ai_speedy = xp.getDataf(self.aispeedDR_y)
         ai_speedz = xp.getDataf(self.aispeedDR_z)
-        distance_behind = 350
+        distance_behind = 300
 
         if not self.spawned:
             ai_posx = -10923
@@ -158,8 +159,8 @@ class PythonInterface:
 
             state = self.vars[self.diff][-1]
             xp.speakString(f'{state}')
+            time.sleep(7)
 
-            time.sleep(3)
             if self.diff in (2,3,6,7,8):
                 self.climbing = True
 
@@ -177,26 +178,19 @@ class PythonInterface:
     
     def pitchAI(self, sinceLast, elapsedSim, counter, refCon):
         speed_y = xp.getDataf(self.aispeedDR_y)
-      
         timing = self.vars[self.diff][1]
         throttle = self.vars[self.diff][2]
         target_speed = self.vars[self.diff][3]
 
         if self.climbing:
-            #if not self.reset_climb:
-                #self.t_climb = -sinceLast
-                #self.reset_climb = True
-
-            if self.t_climb > timing-15:
+            if self.timer > timing-15:
                 self.climbing = False
-                self.t_climb = -sinceLast
                 self.diff = 1
 
-            self.t_climb += sinceLast
-
-        ratio = math.tanh((target_speed - speed_y)/20)
+        ratio = 0.1*math.tanh(target_speed - speed_y)
         xp.setDatavf(self.aipitchcontrolDR, [ratio], 1)
         xp.setDatavf(self.aithrottleDR, [throttle], 0)
+        xp.log(f'speed:{speed_y} altitude: {xp.getDataf(self.aipos_yDR)}')
 
         return 0.02
         
@@ -204,23 +198,16 @@ class PythonInterface:
         roll = xp.getDataf(self.airollDR)
         target_roll = self.vars[self.diff][4]*self.direction
         timing = self.vars[self.diff][1]
-        ratio = 0
 
         if self.bank_scheduled:
-            #if not self.reset_bank:
-                #self.t_bank = -sinceLast
-                #self.reset_bank = True
-
-            if self.t_bank > timing-15:
+            if self.timer > timing-15:
                 self.diff = 1
                 self.bank_scheduled = False
-                self.t_bank = -sinceLast
-
-            self.t_bank += sinceLast
-            xp.log(f'{self.t_bank}: roll ratio: {ratio}, roll:{xp.getDataf(self.airollDR)} altitude:{xp.getDataf(self.aipos_yDR)}')
-
-        roll = math.tanh(target_roll - roll)
+            
+        ratio = 0.08*math.tanh(target_roll - roll)
         xp.setDatavf(self.airollcontrolDR, [ratio], 1)
+
+        xp.log(f'{self.timer}: roll ratio: {ratio}, roll:{xp.getDataf(self.airollDR)} altitude:{xp.getDataf(self.aipos_yDR)}')
         
         return 0.02
     
@@ -268,8 +255,11 @@ class PythonInterface:
     def quit(self, sinceLast, elapsedSim, counter, refCon):
         crashed = xp.getDatai(self.crashedDR)
         if self.spawned:
-            self.timer += sinceLast
-            if self.timer >= self.vars[self.diff][1]+9 or crashed == 1:
+            if not self.reset_t:
+                self.t_first = elapsedSim
+                self.reset_t = True
+            self.timer = elapsedSim - self.t_first
+            if self.timer >= self.vars[self.diff][1]+4 or crashed == 1:
                 if self.diff != 0 and self.diff != 8:
                     sock.send(pickle.dumps('stop recording'))
                 sock.send(pickle.dumps('end'))
