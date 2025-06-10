@@ -295,7 +295,7 @@ class PythonInterface:
 
 def play_gunshot(commandRef, phase, refCon):
     if phase == 0:
-        w = wave.open('Resources/sounds/weapons/marikita.wav')
+        w = wave.open('Resources/sounds/weapons/gunshot.wav')
         xp.playWaveOnBus(w, loop = 0, audioType = 7)
     return 1
 
