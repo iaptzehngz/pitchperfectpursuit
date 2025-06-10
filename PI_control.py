@@ -13,6 +13,8 @@ sock = context.socket(zmq.PUSH)
 sock.connect(f"tcp://{HOST}:{PORT_STREAM}")
 
 rad_to_deg = 180/math.pi
+xz_normal = np.array((0, 1, 0))
+z_unit = np.array((0, 0, -1))
 
 class PythonInterface:
     def __init__(self):
