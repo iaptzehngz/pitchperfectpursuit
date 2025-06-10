@@ -66,9 +66,20 @@ class PythonInterface:
         xp.setDatavi(self.aioverrideDR, [1], 1)
         xp.acquirePlanes()
 
+        self.vars = (
+                    (0, 120, 0.9, 0, 0, 'Welcome to flight training! You have 2 minutes to get familiar with the controls. Enjoy!'),
+                    (1, 30, 0.9, 0, 0, 'Hold steady and fly level'),
+                    (2, 30, 0.9, -5, 0, 'Try descending with the plane'),
+                    (3, 30, 1, 5, 0, 'Try climbing with the plane'),
+                    (4, 30, 1, 0, 30, 'Execute a gentle turn now'),
+                    (5, 30, 1, 0, 50, 'Now execute a steep turn'),
+                    (6, 30, 1, -5, 30, 'Can you try a descending turn?'),
+                    (7, 30, 1, 5, 30, 'Do a climbing turn!'),
+                    (8, 30, 1, 5, 30, 'Track the enemy plane as best as you can')
+                    )
+        
         #spawn function
         self.spawned = False
-        self.vars = []
 
         #bank function
         self.bank_scheduled = False
@@ -101,12 +112,10 @@ class PythonInterface:
         self.dataID = xp.createFlightLoop(self.performance_data)
         self.changepitchID = xp.createFlightLoop(self.pitchAI)
         self.quitID = xp.createFlightLoop(self.quit)
-        self.stateID = xp.createFlightLoop(self.states)
 
         xp.scheduleFlightLoop(self.spawnID, 0.05, 1)
-        xp.scheduleFlightLoop(self.dataID, 0.02, 1)
+        xp.scheduleFlightLoop(self.dataID, 0.05, 1)
         xp.scheduleFlightLoop(self.quitID, 0.02, 1)
-        xp.scheduleFlightLoop(self.stateID, 1, 1)
         
         return 1
     
@@ -147,18 +156,10 @@ class PythonInterface:
             else:
                 xp.placeUserAtLocation(lat, lon, alt, ai_heading, net_speed)
 
-            time.sleep(13)
+            state = self.vars[self.diff][-1]
+            xp.speakString(f'{state}')
 
-            self.vars = ((0, 120, 0.9, 1, 0, 'Welcome to flight training! You have 2 minutes to get familiar with the controls. Enjoy!'),
-                         (1, 30, 0.9, 1, 0, 'Hold steady and fly level'),
-                         (2, 30, 0.9 -10, 0, 'Try descending with the plane'),
-                         (3, 30, 1, 10, 0, 'Try climbing with the plane'),
-                         (4, 30, 1, 1, 30, 'Execute a gentle turn now'),
-                         (5, 30, 1, 1, 50, 'Now execute a steep turn'),
-                         (6, 30, 1, -10, 30, 'Can you try a descending turn?'),
-                         (7, 30, 1, 10, 30, 'Do a climbing turn!'),
-                         (8, 30, 1, 10, 40, 'Track the enemy plane as best as you can'))
-
+            time.sleep(3)
             if self.diff in (2,3,6,7,8):
                 self.climbing = True
 
@@ -175,24 +176,16 @@ class PythonInterface:
         return 0.05
     
     def pitchAI(self, sinceLast, elapsedSim, counter, refCon):
-        pitch = xp.getDataf(self.aipitchDR)
-        if self.diff == 0 or self.diff == 1:
-            constant = 0.5
-        elif self.diff == 2 or self.diff == 3:
-            constant = 0.6
-        elif self.diff == 4 or self.diff == 5:
-            constant = 0.7
-        elif self.diff == 6 or self.diff == 7 or self.diff == 8:
-            constant = 0.8
-
+        speed_y = xp.getDataf(self.aispeedDR_y)
+      
         timing = self.vars[self.diff][1]
         throttle = self.vars[self.diff][2]
-        target_pitch = self.vars[self.diff][3]
+        target_speed = self.vars[self.diff][3]
 
         if self.climbing:
-            if not self.reset_climb:
-                self.t_climb = -sinceLast
-                self.reset_climb = True
+            #if not self.reset_climb:
+                #self.t_climb = -sinceLast
+                #self.reset_climb = True
 
             if self.t_climb > timing-15:
                 self.climbing = False
@@ -201,7 +194,7 @@ class PythonInterface:
 
             self.t_climb += sinceLast
 
-        ratio = constant*math.tanh(target_pitch - pitch)
+        ratio = math.tanh((target_speed - speed_y)/20)
         xp.setDatavf(self.aipitchcontrolDR, [ratio], 1)
         xp.setDatavf(self.aithrottleDR, [throttle], 0)
 
@@ -214,9 +207,9 @@ class PythonInterface:
         ratio = 0
 
         if self.bank_scheduled:
-            if not self.reset_bank:
-                self.t_bank = -sinceLast
-                self.reset_bank = True
+            #if not self.reset_bank:
+                #self.t_bank = -sinceLast
+                #self.reset_bank = True
 
             if self.t_bank > timing-15:
                 self.diff = 1
@@ -270,24 +263,17 @@ class PythonInterface:
         perf_data = [elapsedSim, distance_apart, pitch_dev, heading_dev]
         sock.send(pickle.dumps(perf_data))
 
-        return 0.02
+        return 0.05
     
     def quit(self, sinceLast, elapsedSim, counter, refCon):
         crashed = xp.getDatai(self.crashedDR)
         if self.spawned:
             self.timer += sinceLast
-            if self.timer >= self.vars[self.diff][1]+13 or crashed == 1:
+            if self.timer >= self.vars[self.diff][1]+9 or crashed == 1:
                 if self.diff != 0 and self.diff != 8:
                     sock.send(pickle.dumps('stop recording'))
                 sock.send(pickle.dumps('end'))
         return 0.02
- 
-    def states(self, sinceLast, elapsedSim, counter, refCon):
-        if self.spawned and not self.once:
-            state = self.vars[self.diff][5]
-            xp.speakString(f'{state}')
-            self.once = True
-        return 1
 
     def XPluginDisable(self):
         pass
