@@ -181,7 +181,7 @@ def rating(group):
 def write_trainee_csv(dir: str, filename: str, columns: list, content: list):
     file_path = os.path.join(dir, filename)
     with open(file_path, 'a', encoding='utf-8') as csvfile:
-        writer = csv.writer()
+        writer = csv.writer(csvfile)
         if not os.path.exists(file_path):
             writer.writerow(columns)
         writer.writerow(content)
