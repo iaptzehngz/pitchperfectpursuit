@@ -39,7 +39,7 @@ Adaptive Training in Flight Simulators with Dynamic Difficulty Adjustment and LL
 ### Copying files into X-Plane
 
 - `gunshot.wav` in `"X-Plane 12\Resources\sounds\weapons"`
-- `cockpit_crosshair` in `X-Plane 12\Aircraft\Laminar Research\Cessna 172 SP\plugins\xlua\scripts\cockpit_crosshair`
+- `cockpit_crosshair` in `"X-Plane 12\Aircraft\Laminar Research\Cessna 172 SP\plugins\xlua\scripts\cockpit_crosshair"`
 
 ### Configuring XPPython3
 
