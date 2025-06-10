@@ -47,6 +47,7 @@ class PythonInterface:
         self.manoeuvre = None
         self.manoeuvre_roll =  0.0 #/ rad_to_deg
         self.manoeuvre_vy = 0.0
+        self.manoeuvre_throttle = 0.0
         self.start_time = 10.0
         self.end_time = 25.0
         
@@ -55,20 +56,20 @@ class PythonInterface:
                                           visible=1,
                                           draw=self.drawWindowCallback)
         manoeuvres = (
-            ('straight and level flight', 0 / rad_to_deg, 0, 30),
-            ('descend', 0 / rad_to_deg, -5, 30),
-            ('climb', 0 / rad_to_deg, 5, 30),
-            ('gentle right turn', 30 / rad_to_deg, 0, 30),
-            ('gentle left turn', -30 / rad_to_deg, 0, 30),
-            ('steep right turn', 45 / rad_to_deg, 0, 30),
-            ('steep left turn', -45 / rad_to_deg, 0, 30),
-            ('familiarisation', 0, -1000, 120)
+            ('straight and level flight', 0 / rad_to_deg, 0, 0.75, 30),
+            ('descend', 0 / rad_to_deg, -5, 0.5, 30),
+            ('climb', 0 / rad_to_deg, 5, 1.0, 30),
+            ('gentle right turn', 30 / rad_to_deg, 0, 1.0, 30),
+            ('gentle left turn', -30 / rad_to_deg, 0, 1.0, 30),
+            ('steep right turn', 45 / rad_to_deg, 0, 1.0, 30),
+            ('steep left turn', -45 / rad_to_deg, 0, 1.0, 30),
+            ('familiarisation', 0, -1000, 1.0, 120)
         )
         with context.socket(zmq.PULL) as sock_manoeuvre:
             sock_manoeuvre.bind(f"tcp://{HOST}:{PORT_MANOEUVRE}")
             manoeuvre_no = sock_manoeuvre.recv_json()
             xp.log(f'manoeuvre no. {manoeuvre_no} with flight parameters {manoeuvres[manoeuvre_no - 1]}')
-            self.manoeuvre, self.manoeuvre_roll, self.manoeuvre_vy, self.quit_elapsed_time = manoeuvres[manoeuvre_no - 1]
+            self.manoeuvre, self.manoeuvre_roll, self.manoeuvre_vy, self.manoeuvre_throttle, self.quit_elapsed_time = manoeuvres[manoeuvre_no - 1]
 
         self.commandRef = xp.createCommand('custom/sound/gunshot', 'makes a gun sound')
         xp.registerCommandHandler(self.commandRef, play_gunshot, 1, None)
@@ -212,7 +213,16 @@ class PythonInterface:
         xp.log(f'at time {self.elapsed_time}, ai plane vy is {vy} and yoke pitch ratio is {self.ai_plane.yoke_pitch_ratio}')
         return 1
     
-    def thrustAI(self, _sinceLast, _elapsedTime, _counter, _refcon):
+    def thrustAI(self, _sinceLast, _elaspedTime, _counter, _refcon):
+        if self.elapsed_time > self.start_time and self.elapsed_time < self.end_time:
+            self.ai_plane.throttle_ratio = self.manoeuvre_throtle
+            xp.log(f'at time {self.elapsed_time}, throttle ratio is {self.ai_plane.throttle_ratio}')
+            return 0.5
+        
+        self.ai_plane.throttle_ratio = 0.7
+        return 1
+
+    def thrustAISpeed(self, _sinceLast, _elapsedTime, _counter, _refcon):
         v_ai = np.linalg.norm(self.ai_plane.velocity, ord=2)
         v_ai_knots = v_ai * 1.94384
         target_v = 90

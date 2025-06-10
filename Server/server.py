@@ -224,8 +224,8 @@ def main():
 
     feedback_rating = input("On a scale of 1 to 5, how useful was the feedback? ")
     feedback_feedback = input("Any feedback on the feedback? ")
-    write_log(saves_dir, 'rating.txt', f'feedback rating from 1 to 5:\n{feedback_rating}\nfeedback on feedback:\n{feedback_feedback}')
-    write_trainee_csv(CWD, 'trainee_data.csv', trainee_data_cols, trainee_data)
+#    write_log(saves_dir, 'rating.txt', f'feedback rating from 1 to 5:\n{feedback_rating}\nfeedback on feedback:\n{feedback_feedback}')
+#    write_trainee_csv(CWD, 'trainee_data.csv', trainee_data_cols, trainee_data)
 
 if __name__ == "__main__":
     main()
