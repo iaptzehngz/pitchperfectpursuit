@@ -8,7 +8,7 @@ import time
 import psutil
 import tkinter as tk
 import os
-import datetime
+from datetime import datetime
 
 HOST = '127.0.0.1'
 PORT = 8888
@@ -176,7 +176,9 @@ def main():
             else:
                 flight_desc = 'TRAINING FLIGHT'
 
-            cl.set_profile_parameter("Output", "FilenameFormatting", flight_desc)
+            if i in (1,2,3,4,5,6,7,8,9):
+                cl.set_profile_parameter("Output", "FilenameFormatting", flight_desc)
+                time.sleep(1)
 
             if i in (2,3,4,5,6,7,8):
                 subprocess.Popen(["C:\\Program Files\\VideoLAN\\VLC\\vlc.exe", '--play-and-exit', os.path.join(saves_dir, f'{flight_desc}.mkv')])      
@@ -187,7 +189,6 @@ def main():
             if i in (2,3,4,5,6,7,8):
                 time.sleep(30) 
             
-                
             
 startupinfo = subprocess.STARTUPINFO()
 startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -202,3 +203,4 @@ if not obs_running:
 cl = obs.ReqClient()
 main()
 write_log(saves_dir, 'scores.txt', f'**POST-TEST**:\n\n%time within:\nabs(pitch dev<5deg): {pitch_time}, \nabs(heading dev<5deg): {heading_time}, \n500ft<distance<1500ft: {distance_time}\n\n\n\n')
+
