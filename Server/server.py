@@ -43,11 +43,11 @@ def setup_obs(saves_dir):
     # obs_client.set_profile_parameter("AdvOut", 'FFFilePath', RECORDING_DIR) # if using advanced recording settings in OBS studio
     return obs_client
 
-def communicate_xp(manoeuvre_no, obs_client):
+def communicate_xp(i, obs_client):
     with zmq.Context() as c:
         with c.socket(zmq.PUSH) as s:
             s.connect(f'tcp://{HOST}:{PORT_MANOEUVRE}')
-            s.send_json(manoeuvre_no)
+            s.send_json(i)
         with c.socket(zmq.PULL) as s:
             s.bind(f'tcp://{HOST}:{PORT_STREAM}')
             data = collect_data(s, obs_client)
@@ -181,6 +181,7 @@ def main():
     str_date_time = date_time.strftime("%d-%m-%Y %H%M%S")
     saves_dir = os.path.join(CWD, 'saves', f'{name} {str_date_time}')
     os.makedirs(saves_dir)
+    trainee_data = ['feedback', name, str_date_time]
 
     obs_client = setup_obs(saves_dir)
     
@@ -202,6 +203,7 @@ def main():
         df, dob, pob, hob = process_dataframe(values)
         df = plot_and_save(df, saves_dir, flight_description, manoeuvre_description)
         if i in (1, 9):
+            trainee_data.extend((dob, pob, hob))
             write_log(saves_dir, 'scores.txt', f'**{flight_description}**:\n\n%time within:\n500ft<distance<1500ft: {dob},\nabs(pitch dev<5deg): {pob}, \nabs(heading dev<5deg): {hob}\n\n\n\n')
         if i in range(2, 9):
             print(f'Enemy aircraft executed "{manoeuvre_description}"')
@@ -224,7 +226,9 @@ def main():
     feedback_rating = input("On a scale of 1 to 5, how useful was the feedback? ")
     feedback_feedback = input("Any feedback on the feedback? ")
 #    write_log(saves_dir, 'rating.txt', f'feedback rating from 1 to 5:\n{feedback_rating}\nfeedback on feedback:\n{feedback_feedback}')
-#    write_trainee_csv(CWD, 'trainee_data.csv', trainee_data_cols, trainee_data)
+    trainee_data.extend((feedback_rating, feedback_feedback))
+    trainee_data_cols = ['group, name, strdatetime, pre dob, pre pob, pre hob, post dob, post pob, post hob, rating, feedback']
+    write_trainee_csv(CWD, 'trainee_data.csv', trainee_data_cols, trainee_data)
 
 if __name__ == "__main__":
     main()
