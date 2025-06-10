@@ -152,7 +152,6 @@ def generate_feedback(llm_client, df_to_csv, aircraft_type, flight_description, 
     response = llm_client.invoke(messages)
     end_time = time.perf_counter()
     elapsed_time = end_time - start_time    
-    print(f"Response time: {elapsed_time:.2f} seconds")
 
     write_log(dir, 'messages.txt', f'at {date_time}, messages:\n\n{messages}\n\n\n\n')
     write_log(dir, 'responses.txt', f'at {date_time}, response content:\n\n{response.content}\n\n\n\n')
@@ -218,7 +217,7 @@ def main():
             trainee_data.extend((dob, pob, hob))
             write_log(saves_dir, 'scores.txt', f'**{flight_description}**:\n\n%time within:\n500ft<distance<1500ft: {dob},\nabs(pitch dev<5deg): {pob}, \nabs(heading dev<5deg): {hob}\n\n\n\n')
         if i in range(2, 9):
-            print(f'Enemy aircraft executed "{manoeuvre_description}"')
+            print(f'\nEnemy aircraft executed "{manoeuvre_description}"\n')
 
             vlc_process = subprocess.Popen([VLC_PATH, '--play-and-exit', os.path.join(saves_dir, f'{flight_description}.mp4')])
             df = slice_and_dice(df)
