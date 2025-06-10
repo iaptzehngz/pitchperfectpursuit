@@ -216,7 +216,7 @@ class PythonInterface:
     
     def thrustAI(self, _sinceLast, _elaspedTime, _counter, _refcon):
         if self.elapsed_time > self.start_time and self.elapsed_time < self.end_time:
-            self.ai_plane.throttle_ratio = self.manoeuvre_throtle
+            self.ai_plane.throttle_ratio = self.manoeuvre_throttle
             xp.log(f'at time {self.elapsed_time}, throttle ratio is {self.ai_plane.throttle_ratio}')
             return 0.5
         
