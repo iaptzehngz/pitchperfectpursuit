@@ -48,27 +48,28 @@ class PythonInterface:
         self.manoeuvre_roll =  0.0 #/ rad_to_deg
         self.manoeuvre_vy = 0.0
         self.manoeuvre_throttle = 0.0
+        self.brief = None
         self.start_time = 10.0
         self.end_time = 25.0
         
     def XPluginStart(self):
         manoeuvres = (
-            ('familiarisation', 0, -1000, 1.0, 120), # fam
-            ('climbing left turn', -45, 5, 1.0, 30), # pre-training
-            ('straight and level flight', 0, 0, 0.75, 30),
-            ('descend', 0, -5, 0.5, 30),
-            ('climb', 0, 5, 1.0, 30),
-            ('gentle right turn', 30, 0, 1.0, 30),
-            ('steep left turn', -45, 0, 1.0, 30),
-            ('descending right turn', 45, 5, 1.0, 30),
-            ('climbing left turn', -45, 5, 1.0, 30),
-            ('climbing right turn', 45, 5, 1.0, 30)
+            ('familiarisation', 0, -1000, 1.0, 120, 'Welcome to flight training! You have 2 minutes to get familiar with the controls. Enjoy!'), # fam
+            ('climbing left turn', -45, 5, 1.0, 50, 'Track the enemy plane as best as you can, good luck!'), # pre-training
+            ('straight and level flight', 0, 0, 0.6, 30, 'Hold steady and fly level'),
+            ('descend', 0, -5, 0.6, 30, 'Try descending with the plane'),
+            ('climb', 0, 5, 1.0, 30, 'Try climbing with the plane'),
+            ('gentle right turn', 30, 0, 1.0, 30, 'Execute a gentle turn now'),
+            ('steep left turn', -45, 0, 1.0, 30, 'Now execute a steep turn'),
+            ('descending right turn', 45, 5, 1.0, 30, 'Can you try a descending turn?'),
+            ('climbing left turn', -45, 5, 1.0, 30, 'Do a climbing turn!'),
+            ('climbing right turn', 45, 5, 1.0, 50, 'Track the enemy plane as best as you can, good luck!') # post-training
         )
         with context.socket(zmq.PULL) as sock_manoeuvre:
             sock_manoeuvre.bind(f"tcp://{HOST}:{PORT_MANOEUVRE}")
             manoeuvre_no = sock_manoeuvre.recv_json()
             xp.log(f'manoeuvre no. {manoeuvre_no} with flight parameters {manoeuvres[manoeuvre_no]}')
-            self.manoeuvre, self.manoeuvre_roll, self.manoeuvre_vy, self.manoeuvre_throttle, self.quit_elapsed_time = manoeuvres[manoeuvre_no]
+            self.manoeuvre, self.manoeuvre_roll, self.manoeuvre_vy, self.manoeuvre_throttle, self.quit_elapsed_time, self.brief = manoeuvres[manoeuvre_no]
 
         self.commandRef = xp.createCommand('custom/sound/gunshot', 'makes a gun sound')
         xp.registerCommandHandler(self.commandRef, play_gunshot, 1, None)
@@ -168,6 +169,7 @@ class PythonInterface:
             self.loop_count += 1
             self.first_elapsedTime = elapsedTime
             if self.loop_count == 2:
+                xp.speakString(self.brief)
                 sock.send_json({
                     'stream': 'recording',
                     'data': 'start'
@@ -218,7 +220,7 @@ class PythonInterface:
             xp.log(f'at time {self.elapsed_time}, throttle ratio is {self.ai_plane.throttle_ratio}')
             return 0.5
         
-        self.ai_plane.throttle_ratio = 0.75
+        self.ai_plane.throttle_ratio = 0.6
         return 1
 
     def thrustAISpeed(self, _sinceLast, _elapsedTime, _counter, _refcon):
