@@ -75,7 +75,7 @@ class PythonInterface:
                     (5, 30, 1, 0, 50, 'Now execute a steep turn'),
                     (6, 30, 1, -5, 30, 'Can you try a descending turn?'),
                     (7, 30, 1, 5, 30, 'Do a climbing turn!'),
-                    (8, 30, 1, 5, 30, 'Track the enemy plane as best as you can')
+                    (8, 30, 1, 5, 30, 'Track the enemy plane as best as you can, good luck!')
                     )
         
         #spawn function
