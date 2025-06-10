@@ -115,11 +115,11 @@ def slice_and_dice(df):
     df.drop(columns=[
         'Δt', 
         'sideslip angle', 
-        'ideal pitch', 'ideal heading', #'pitch', 'heading', 'roll',
+        'ideal pitch', 'ideal heading',# 'pitch', 'heading', 'roll',
         'aspect angle', 
         # 'pitch rate', 'roll rate',
         'rate of change of indicated airspeed',
-        # 'centre stick pitch ratio', 'centre stick roll ratio', 'rudder pedal ratio'
+        'rudder pedal ratio',# 'centre stick pitch ratio', 'centre stick roll ratio'
     ], inplace=True)
     df = df[df.index > 4] # the kias dataref stream starts at 0 knots at t = 0, stabilising around t = 4 s
     return df
