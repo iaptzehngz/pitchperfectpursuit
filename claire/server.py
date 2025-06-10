@@ -9,6 +9,7 @@ import psutil
 import tkinter as tk
 import os
 from datetime import datetime
+import csv
 
 HOST = '127.0.0.1'
 PORT = 8888
@@ -82,7 +83,7 @@ def stream_actions(conn):
             
     return dataset_raw
     
-def get_diff(i, dataset_raw, difficulty):
+def get_diff(i, difficulty):
     #GET DATA
     dataset = copy.deepcopy(dataset_raw)
     for j in range(len(dataset)-1):
@@ -110,7 +111,7 @@ def get_diff(i, dataset_raw, difficulty):
     if i == 0:
         difficulty = 0
     elif i == 2:
-        difficulty = 2
+        difficulty = 3
     elif i == 1 or i == 9:
         difficulty = 8
     else:
@@ -137,14 +138,22 @@ def write_log(dir, filename, content):
     with open(os.path.join(dir, filename), 'a', encoding='utf-8') as f:
         f.write(content)
 
+def write_trainee_csv(dir, filename, columns, content):
+    file_path = os.path.join(dir, filename)
+    file_exists = os.path.exists(file_path)
+    with open(file_path, 'a', encoding='utf-8', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        if not file_exists:
+            writer.writerow(columns)
+        writer.writerow(content)
 
 def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((HOST, PORT))
     sock.listen()
 
+    global difficulty, distance_time, pitch_time, heading_time, saves_dir, direction, csv_data, dataset_raw
     dataset_raw = []
-    global difficulty, distance_time, pitch_time, heading_time, saves_dir, direction
     difficulty = 0
     direction = 1
 
@@ -153,7 +162,8 @@ def main():
 
     date_time = datetime.now()
     str_date_time = date_time.strftime("%d-%m-%Y %H%M%S")
-    file_name = f'{app.name.upper()} {str_date_time}'
+    name = app.name.upper()
+    file_name = f'{name} {str_date_time}'
     saves_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'saves', file_name) #file name and directory
     os.makedirs(saves_dir)
     cl.set_record_directory(saves_dir)
@@ -162,30 +172,27 @@ def main():
         subprocess.run('start steam://run/2014780', shell=True)
         conn, addr = sock.accept()
         with conn:
-            difficulty, distance_time, pitch_time, heading_time = get_diff(i, dataset_raw, difficulty)
-            direction *= -1
-
-            conn.send(pickle.dumps([difficulty, direction]))
-            
-            dataset_raw = stream_actions(conn)
-
             if i == 1:
                 flight_desc = 'PRE-TEST'
             elif i == 9:
                 flight_desc = 'POST-TEST'
             else:
-                flight_desc = 'TRAINING FLIGHT'
-
+                flight_desc = str(i-1)
             if i in (1,2,3,4,5,6,7,8,9):
                 cl.set_profile_parameter("Output", "FilenameFormatting", flight_desc)
-                time.sleep(1)
+
+            difficulty, distance_time, pitch_time, heading_time = get_diff(i, dataset_raw, difficulty)
+            direction *= -1
+
+            conn.send(pickle.dumps([difficulty, direction]))
+            dataset_raw = stream_actions(conn)
 
             if i in (2,3,4,5,6,7,8):
                 subprocess.Popen(["C:\\Program Files\\VideoLAN\\VLC\\vlc.exe", '--play-and-exit', os.path.join(saves_dir, f'{flight_desc}.mkv')])      
 
             if i == 2:
-                write_log(saves_dir, 'scores.txt', f'**{flight_desc}**:\n\n%time within:\nabs(pitch dev<5deg): {pitch_time}, \nabs(heading dev<5deg): {heading_time}, \n500ft<distance<1500ft: {distance_time}\n\n\n\n')
-            
+                write_log(saves_dir, 'scores.txt', f'**PRE-TEST**:\n\n% time within:\nabs(pitch dev<5deg): {pitch_time}, \nabs(heading dev<5deg): {heading_time}, \n500ft<distance<1500ft: {distance_time}\n\n\n\n')
+                csv_data = ['DDA', name, str_date_time, distance_time, pitch_time, heading_time]
             if i in (2,3,4,5,6,7,8):
                 time.sleep(30) 
             
@@ -202,5 +209,9 @@ if not obs_running:
     time.sleep(7)
 cl = obs.ReqClient()
 main()
+difficulty, distance_time, pitch_time, heading_time = get_diff(9, 8)
 write_log(saves_dir, 'scores.txt', f'**POST-TEST**:\n\n%time within:\nabs(pitch dev<5deg): {pitch_time}, \nabs(heading dev<5deg): {heading_time}, \n500ft<distance<1500ft: {distance_time}\n\n\n\n')
-
+csv_data += [distance_time, pitch_time, heading_time]
+write_trainee_csv(os.path.dirname(os.path.abspath(__file__)), 'trainee_data.csv', 
+                                  ['group, name, strdatetime, pre dob, pre pob, pre hob, post dob, post pob, post hob, rating, feedback'],
+                                  csv_data)
