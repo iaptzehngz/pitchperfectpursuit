@@ -259,9 +259,10 @@ class PythonInterface:
                 self.t_first = elapsedSim
                 self.reset_t = True
             self.timer = elapsedSim - self.t_first
-            if self.timer >= self.vars[self.diff][1]+4 or crashed == 1:
+            if self.timer >= self.vars[self.diff][1]+3 or crashed == 1:
                 if self.diff != 0 and self.diff != 8:
                     sock.send(pickle.dumps('stop recording'))
+                time.sleep(1)
                 sock.send(pickle.dumps('end'))
         return 0.02
 
