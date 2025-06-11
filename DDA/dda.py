@@ -111,7 +111,7 @@ def get_diff(i, difficulty):
     if i == 0:
         difficulty = 0
     elif i == 2:
-        difficulty = 3
+        difficulty = 4
     elif i == 1 or i == 9:
         difficulty = 8
     else:
@@ -181,7 +181,7 @@ def main():
             if i in (1,2,3,4,5,6,7,8,9):
                 cl.set_profile_parameter("Output", "FilenameFormatting", flight_desc)
 
-            difficulty, distance_time, pitch_time, heading_time = get_diff(i, dataset_raw, difficulty)
+            difficulty, distance_time, pitch_time, heading_time = get_diff(i, difficulty)
             direction *= -1
 
             conn.send(pickle.dumps([difficulty, direction]))
@@ -194,7 +194,7 @@ def main():
                 write_log(saves_dir, 'scores.txt', f'**PRE-TEST**:\n\n% time within:\nabs(pitch dev<5deg): {pitch_time}, \nabs(heading dev<5deg): {heading_time}, \n500ft<distance<1500ft: {distance_time}\n\n\n\n')
                 csv_data = ['DDA', name, str_date_time, distance_time, pitch_time, heading_time]
             if i in (2,3,4,5,6,7,8):
-                time.sleep(30) 
+                time.sleep(34) 
             
             
 startupinfo = subprocess.STARTUPINFO()
@@ -213,5 +213,5 @@ difficulty, distance_time, pitch_time, heading_time = get_diff(9, 8)
 write_log(saves_dir, 'scores.txt', f'**POST-TEST**:\n\n%time within:\nabs(pitch dev<5deg): {pitch_time}, \nabs(heading dev<5deg): {heading_time}, \n500ft<distance<1500ft: {distance_time}\n\n\n\n')
 csv_data += [distance_time, pitch_time, heading_time]
 write_trainee_csv(os.path.dirname(os.path.abspath(__file__)), 'trainee_data.csv', 
-                                  ['group, name, strdatetime, pre dob, pre pob, pre hob, post dob, post pob, post hob, rating, feedback'],
+                                  ['Group', 'Name', 'Date time', 'Pre distance score', 'Pre pitch score', 'Pre heading score ', 'Post distance score','Post pitch score',  "Post heading score",' Rating', 'Feedback'],
                                   csv_data)
