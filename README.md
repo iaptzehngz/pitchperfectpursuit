@@ -2,7 +2,9 @@
 
 ## Project summary
 
-Adaptive Training in Flight Simulators with Dynamic Difficulty Adjustment and LLM-generated Feedback
+Adaptive Training in Flight Simulators with Dynamic Difficulty Adjustment and LLM-generated Feedback.
+
+Everything in this guide applies to the control, DDA and Feedback experiment unless otherwise stated.
 
 ## Installing software
 
