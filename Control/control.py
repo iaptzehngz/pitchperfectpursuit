@@ -100,18 +100,6 @@ def write_log(dir: str, filename: str, content: str):
     with open(os.path.join(dir, filename), 'a', encoding='utf-8') as f:
         f.write(content)
 
-def rating(group):
-    while True:
-        try:
-            rating = int(input(f"On a scale of 1 to 5, how useful was the {group}?\n"))
-            if rating in range(1, 6):
-                break
-            else:
-                print('Enter an integer between 1 and 5')
-        except ValueError:
-            print("Enter an integer")
-    return rating
-
 def write_trainee_csv(dir: str, filename: str, columns: list, content: list):
     file_path = os.path.join(dir, filename)
     file_exists = os.path.exists(file_path)
@@ -157,11 +145,8 @@ def main():
             print("\nSelf-reflect for 30 seconds.\n")
 
             time.sleep(30)
-    feedback_rating = rating('feedback')
-    feedback_feedback = input("Any feedback on the feedback?\n")
 #    write_log(saves_dir, 'rating.txt', f'feedback rating from 1 to 5:\n{feedback_rating}\nfeedback on feedback:\n{feedback_feedback}')
-    trainee_data.extend((feedback_rating, feedback_feedback))
-    trainee_data_cols = ['group, name, strdatetime, pre dob, pre pob, pre hob, post dob, post pob, post hob, rating, feedback']
+    trainee_data_cols = ['Group', 'Name', 'Date time', 'Pre distance score', 'Pre pitch score', 'Pre heading score ', 'Post distance score','Post pitch score',  "Post heading score",' Rating', 'Feedback']
     write_trainee_csv(CWD, 'trainee_data.csv', trainee_data_cols, trainee_data)
 
 if __name__ == "__main__":
