@@ -1,5 +1,6 @@
 saves/
 no/
+__pycache__/
 
 *.txt
 *.csv

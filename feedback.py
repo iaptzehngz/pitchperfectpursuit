@@ -186,6 +186,13 @@ def write_trainee_csv(dir: str, filename: str, columns: list, content: list):
             writer.writerow(columns)
         writer.writerow(content)
 
+def one_PI(dir, filename, placeholder_filename):
+    file_path = os.path.join(dir, filename)
+    file_exists = os.path.exists(file_path)
+    print(file_exists)
+    if not file_exists:
+        os.rename(os.path.join(dir, placeholder_filename), file_path)
+
 def main():
     name = input("Enter your name: ")
     name = name.upper()
@@ -242,4 +249,8 @@ def main():
     write_trainee_csv(CWD, 'trainee_data.csv', trainee_data_cols, trainee_data)
 
 if __name__ == "__main__":
-    main()
+    try:
+        one_PI(CWD, 'PI_feedback.py', 'notPI_feedback.py')
+        main()
+    finally:
+        one_PI(CWD, 'notPI_feedback.py', 'PI_feedback.py')
