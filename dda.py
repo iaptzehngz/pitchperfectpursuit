@@ -147,6 +147,19 @@ def write_trainee_csv(dir, filename, columns, content):
             writer.writerow(columns)
         writer.writerow(content)
 
+def one_PI(dir, wanted_filename, placeholder_filename, other_PIs, placeholder_other_PIs):
+    file_path = os.path.join(dir, wanted_filename)
+    file_exists = os.path.exists(file_path)
+    if not file_exists:
+        os.rename(os.path.join(dir, placeholder_filename), file_path)
+    for i in range(2):
+        other_PI = other_PIs[i]
+        placeholder_other_PI = placeholder_other_PIs[i]
+        file_path = os.path.join(dir, placeholder_other_PI)
+        file_exists = os.path.exists(file_path)
+        if not file_exists:
+            os.rename(os.path.join(dir, other_PI), placeholder_other_PI)
+
 def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((HOST, PORT))
@@ -156,6 +169,8 @@ def main():
     dataset_raw = []
     difficulty = 0
     direction = 1
+
+    one_PI(os.path.dirname(os.path.abspath(__file__)), 'PI_DDA.py', 'notPI_DDA.py', ('PI_control.py', 'PI_feedback.py'), ('notPI_control.py', 'notPI_feedback.py'))
 
     app = MainApp() #login page
     app.mainloop()
