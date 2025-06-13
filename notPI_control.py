@@ -66,9 +66,6 @@ class PythonInterface:
             manoeuvre_no = sock_manoeuvre.recv_json()
             xp.log(f'manoeuvre no. {manoeuvre_no} with flight parameters {manoeuvres[manoeuvre_no]}')
             self.manoeuvre, self.manoeuvre_roll, self.manoeuvre_vy, self.manoeuvre_throttle, self.quit_elapsed_time, self.brief = manoeuvres[manoeuvre_no]
-
-        self.commandRef = xp.createCommand('custom/sound/gunshot', 'makes a gun sound')
-        xp.registerCommandHandler(self.commandRef, play_gunshot, 1, None)
         return "PI_stshmybae", "xppython3.ilovedsta", "Spawn aircraft and stream data"
     
     def XPluginEnable(self):
@@ -264,16 +261,9 @@ class PythonInterface:
             })
         sock.close()
         context.destroy()
-        xp.unregisterCommandHandler(self.commandRef, play_gunshot, 1, None)
 
     def XPluginDisable(self):
         pass
-
-def play_gunshot(commandRef, phase, refCon):
-    if phase == 0:
-        w = wave.open('Resources/sounds/weapons/gunshot.wav')
-        xp.playWaveOnBus(w, loop = 0, audioType = 7)
-    return 1
 
 def override_ai_autopilot(plane_index=None):
     if plane_index:
