@@ -18,8 +18,8 @@ CWD = os.path.dirname(os.path.abspath(__file__))
 os.chdir(CWD)
 
 HOST = "127.0.0.1"
-PORT_STREAM = 5555
-PORT_MANOEUVRE = 6666
+PORT_STREAM = 5556
+PORT_MANOEUVRE = 6665
 
 OBS_PATH = "C:\\Program Files\\obs-studio\\bin\\64bit\\obs64.exe"
 VLC_PATH = "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe"
