@@ -13,6 +13,7 @@ import csv
 
 HOST = '127.0.0.1'
 PORT = 8888
+CWD = os.path.dirname(os.path.abspath(__file__))
 
 def stream_actions(conn):
     dataset_raw = []
@@ -30,7 +31,6 @@ def stream_actions(conn):
                 cl.start_record()
             else:
                 dataset_raw += [new_data,]
-                print(f'{pickle.loads(data)}')
             
     return dataset_raw
     
@@ -121,27 +121,31 @@ def main():
     difficulty = 0
     direction = 1
 
-    one_PI(os.path.dirname(os.path.abspath(__file__)), 'PI_DDA.py', 'notPI_DDA.py', ('PI_control.py', 'PI_feedback.py'), ('notPI_control.py', 'notPI_feedback.py'))
+    one_PI(CWD, 'PI_DDA.py', 'notPI_DDA.py', ('PI_control.py', 'PI_feedback.py'), ('notPI_control.py', 'notPI_feedback.py'))
 
     name = input("Enter your name: ")
     name = name.upper()
     date_time = datetime.now()
     str_date_time = date_time.strftime("%d-%m-%Y %H%M%S")
     file_name = f'{name} {str_date_time}'
-    saves_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'saves', file_name) #file name and directory
+    saves_dir = os.path.join(CWD, 'saves', file_name) #file name and directory
     os.makedirs(saves_dir)
     cl.set_record_directory(saves_dir)
 
     for i in range(10):
+        if i == 1:
+            flight_desc = 'pre-training'
+        elif i == 9:
+            flight_desc = 'post-training'
+        elif i == 0:
+            flight_desc = 'familiarisation'
+        else:
+            flight_desc = 'flight'+ str(i-1)
+        print(f"\n--- Starting {flight_desc} ---\n")
         subprocess.run('start steam://run/2014780', shell=True)
         conn, addr = sock.accept()
         with conn:
-            if i == 1:
-                flight_desc = 'PRE-TEST'
-            elif i == 9:
-                flight_desc = 'POST-TEST'
-            else:
-                flight_desc = str(i-1)
+            
             if i in (1,2,3,4,5,6,7,8,9):
                 cl.set_profile_parameter("Output", "FilenameFormatting", flight_desc)
 
@@ -157,11 +161,11 @@ def main():
             if i == 2:
                 write_log(saves_dir, 'scores.txt', f'**PRE-TEST**:\n\n% time within:\nabs(pitch dev<5deg): {pitch_time}, \nabs(heading dev<5deg): {heading_time}, \n500ft<distance<1500ft: {distance_time}\n\n\n\n')
                 csv_data = ['DDA', name, str_date_time, distance_time, pitch_time, heading_time]
-            
-            print("\nSelf-reflect for 30 seconds.\n")
 
             if i in (2,3,4,5,6,7,8):
                 time.sleep(34) 
+                print("\nSelf-reflect for 30 seconds.\n")
+                time.sleep(30)
             
             
 startupinfo = subprocess.STARTUPINFO()
@@ -175,10 +179,11 @@ if not obs_running:
     subprocess.Popen(r'C:\Program Files\obs-studio\bin\64bit\obs64.exe', cwd='C:/Program Files/obs-studio/bin/64bit/', startupinfo=startupinfo)
     time.sleep(7)
 cl = obs.ReqClient()
+
 main()
 difficulty, distance_time, pitch_time, heading_time = get_diff(9, 8)
 write_log(saves_dir, 'scores.txt', f'**POST-TEST**:\n\n%time within:\nabs(pitch dev<5deg): {pitch_time}, \nabs(heading dev<5deg): {heading_time}, \n500ft<distance<1500ft: {distance_time}\n\n\n\n')
 csv_data += [distance_time, pitch_time, heading_time]
-write_trainee_csv(os.path.dirname(os.path.abspath(__file__)), 'trainee_data.csv', 
+write_trainee_csv(CWD, 'trainee_data.csv', 
                                   ['Group', 'Name', 'Date time', 'Pre distance score', 'Pre pitch score', 'Pre heading score ', 'Post distance score','Post pitch score',  "Post heading score",' Rating', 'Feedback'],
                                   csv_data)
