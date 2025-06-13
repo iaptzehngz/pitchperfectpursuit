@@ -156,7 +156,7 @@ def main():
             dataset_raw = stream_actions(conn)
 
             if i in (2,3,4,5,6,7,8):
-                subprocess.Popen(["C:\\Program Files\\VideoLAN\\VLC\\vlc.exe", '--play-and-exit', os.path.join(saves_dir, f'{flight_desc}.mkv')])      
+                subprocess.Popen(["C:\\Program Files\\VideoLAN\\VLC\\vlc.exe", '--play-and-exit', os.path.join(saves_dir, f'{flight_desc}.mp4')])      
 
             if i == 2:
                 write_log(saves_dir, 'scores.txt', f'**PRE-TEST**:\n\n% time within:\nabs(pitch dev<5deg): {pitch_time}, \nabs(heading dev<5deg): {heading_time}, \n500ft<distance<1500ft: {distance_time}\n\n\n\n')
