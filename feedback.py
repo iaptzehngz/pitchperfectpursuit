@@ -186,12 +186,18 @@ def write_trainee_csv(dir: str, filename: str, columns: list, content: list):
             writer.writerow(columns)
         writer.writerow(content)
 
-def one_PI(dir, filename, placeholder_filename):
-    file_path = os.path.join(dir, filename)
+def one_PI(dir, wanted_filename, placeholder_filename, other_PIs, placeholder_other_PIs):
+    file_path = os.path.join(dir, wanted_filename)
     file_exists = os.path.exists(file_path)
-    print(file_exists)
     if not file_exists:
         os.rename(os.path.join(dir, placeholder_filename), file_path)
+    for i in range(2):
+        other_PI = other_PIs[i]
+        placeholder_other_PI = placeholder_other_PIs[i]
+        file_path = os.path.join(dir, placeholder_other_PI)
+        file_exists = os.path.exists(file_path)
+        if not file_exists:
+            os.rename(os.path.join(dir, other_PI), placeholder_other_PI)
 
 def main():
     name = input("Enter your name: ")
@@ -249,8 +255,5 @@ def main():
     write_trainee_csv(CWD, 'trainee_data.csv', trainee_data_cols, trainee_data)
 
 if __name__ == "__main__":
-    try:
-        one_PI(CWD, 'PI_feedback.py', 'notPI_feedback.py')
-        main()
-    finally:
-        one_PI(CWD, 'notPI_feedback.py', 'PI_feedback.py')
+    one_PI(CWD, 'PI_feedback.py', 'notPI_feedback.py', ('PI_DDA.py', 'PI_control.py'), ('notPI_DDA.py', 'notPI_control.py'))
+    main()

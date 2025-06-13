@@ -27,14 +27,14 @@ Everything in this guide applies to the control, DDA and Feedback experiment unl
 - `gunshot.wav` in `"X-Plane 12\Resources\sounds\weapons"`
 - `cockpit_crosshair` in `"X-Plane 12\Aircraft\Laminar Research\Cessna 172 SP\plugins\xlua\scripts\cockpit_crosshair"`
 - For control experiment:
-	- `Control/PI_control` in `"X-Plane 12\Resources\plugins\PythonPlugins"`
-	- `Control/control.py` in any directory 
+	- `notPI_control` in `"X-Plane 12\Resources\plugins\PythonPlugins"`
+	- `control.py` in any directory 
 - For DDA experiment:
-  	- `DDA/PI_DDA` in `"X-Plane 12\Resources\plugins\PythonPlugins"`
-  	- `DDA/dda.py` in any directory
+  	- `notPI_DDA` in `"X-Plane 12\Resources\plugins\PythonPlugins"`
+  	- `dda.py` in any directory
 - For feedback experiment:
- 	- `Feedback/PI_adaFeedback` in `"X-Plane 12\Resources\plugins\PythonPlugins"`
-	- `Feedback/feedback.py` in any directory
+ 	- `notPI_adaFeedback` in `"X-Plane 12\Resources\plugins\PythonPlugins"`
+	- `feedback.py` in any directory
 
 ### Creating and activating Python environment for `server.py`
 
