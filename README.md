@@ -43,7 +43,7 @@ Everything in this guide applies to the control, DDA and Feedback experiment unl
 2. [Enable websocket server](https://obsproject.com/kb/remote-control-guide)
 	1. Navigate to Tools > WebSocket Server Settings
 	2. Check the "Enable WebSockets server" box
- 3. [Configure output format]
+ 3. Configure output format
     1. Navigate to Settings > Output > Recording > Recording Format
     2. Select "MPEG-4(.mp4)"
 
