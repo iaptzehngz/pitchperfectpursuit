@@ -128,7 +128,7 @@ def main():
     str_date_time = date_time.strftime("%d-%m-%Y %H%M%S")
     saves_dir = os.path.join(CWD, 'saves', f'{name} {str_date_time}')
     os.makedirs(saves_dir)
-    trainee_data = ['feedback', name, str_date_time]
+    trainee_data = ['control', name, str_date_time]
 
     obs_client = setup_obs(saves_dir)
 
