@@ -2,7 +2,9 @@
 
 ## Project summary
 
-Adaptive Training in Flight Simulators with Dynamic Difficulty Adjustment and LLM-generated Feedback
+Adaptive Training in Flight Simulators with Dynamic Difficulty Adjustment and LLM-generated Feedback.
+
+Everything in this guide applies to the control, DDA and Feedback experiment unless otherwise stated.
 
 ## Installing software
 
@@ -21,6 +23,7 @@ Adaptive Training in Flight Simulators with Dynamic Difficulty Adjustment and LL
 
 #### Copying files into X-Plane
 
+- `PI_gunshot.py` in `"X-Plane 12\Resources\plugins\PythonPlugins"`
 - `gunshot.wav` in `"X-Plane 12\Resources\sounds\weapons"`
 - `cockpit_crosshair` in `"X-Plane 12\Aircraft\Laminar Research\Cessna 172 SP\plugins\xlua\scripts\cockpit_crosshair"`
 - For control experiment:
