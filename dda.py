@@ -14,55 +14,6 @@ import csv
 HOST = '127.0.0.1'
 PORT = 8888
 
-class MainApp(tk.Tk):
-    def __init__(self):
-        tk.Tk.__init__(self)
-        self.name = ""  # store the entered name
-        self.frame = FirstFrame(self)
-        self.frame.pack()
-
-    def change(self, frame_class):
-        self.frame.pack_forget()
-        self.frame = frame_class(self)
-        self.frame.pack()
-
-class FirstFrame(tk.Frame):
-    def __init__(self, master=None, **kwargs):
-        tk.Frame.__init__(self, master, **kwargs)
-
-        master.title("Enter Name")
-        master.geometry("300x200")
-
-        lbl = tk.Label(self, text="Enter your name")
-        lbl.pack()
-
-        self.name_entry = tk.Entry(self)
-        self.name_entry.pack()
-        self.name_entry.focus()
-
-        done_btn = tk.Button(self, text="Done", command=self.proceed)
-        done_btn.pack()
-
-        cancel_btn = tk.Button(self, text="Cancel", command=self.quit)
-        cancel_btn.pack()
-
-    def proceed(self):
-        name = self.name_entry.get().strip()
-        if name:
-            self.master.name = name  #store name
-            self.master.change(SecondFrame)
-
-class SecondFrame(tk.Frame):
-    def __init__(self, master=None, **kwargs):
-        tk.Frame.__init__(self, master, **kwargs)
-        master.title("Enter Name")
-        master.geometry("600x400")
-
-        lbl = tk.Label(self, text=f'Welcome to flight training {master.name}! Kindly wait while the simulator loads...')
-        lbl.pack()
-        master.after(1500, master.destroy)
-
-
 def stream_actions(conn):
     dataset_raw = []
     getting = True
@@ -172,12 +123,10 @@ def main():
 
     one_PI(os.path.dirname(os.path.abspath(__file__)), 'PI_DDA.py', 'notPI_DDA.py', ('PI_control.py', 'PI_feedback.py'), ('notPI_control.py', 'notPI_feedback.py'))
 
-    app = MainApp() #login page
-    app.mainloop()
-
+    name = input("Enter your name: ")
+    name = name.upper()
     date_time = datetime.now()
     str_date_time = date_time.strftime("%d-%m-%Y %H%M%S")
-    name = app.name.upper()
     file_name = f'{name} {str_date_time}'
     saves_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'saves', file_name) #file name and directory
     os.makedirs(saves_dir)
