@@ -200,6 +200,8 @@ def one_PI(dir, wanted_filename, placeholder_filename, other_PIs, placeholder_ot
             os.rename(os.path.join(dir, other_PI), placeholder_other_PI)
 
 def main():
+    one_PI(CWD, 'PI_feedback.py', 'notPI_feedback.py', ('PI_DDA.py', 'PI_control.py'), ('notPI_DDA.py', 'notPI_control.py'))
+
     name = input("Enter your name: ")
     name = name.upper()
     date_time = datetime.now()
@@ -255,5 +257,4 @@ def main():
     write_trainee_csv(CWD, 'trainee_data.csv', trainee_data_cols, trainee_data)
 
 if __name__ == "__main__":
-    one_PI(CWD, 'PI_feedback.py', 'notPI_feedback.py', ('PI_DDA.py', 'PI_control.py'), ('notPI_DDA.py', 'notPI_control.py'))
     main()
