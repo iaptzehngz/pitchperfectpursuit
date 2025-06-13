@@ -25,7 +25,7 @@ Everything in this guide applies to the control, DDA and Feedback experiment unl
 
 - `gunshot.wav` in `"X-Plane 12\Resources\sounds\weapons"`
 - `cockpit_crosshair` in `"X-Plane 12\Aircraft\Laminar Research\Cessna 172 SP\plugins\xlua\scripts\cockpit_crosshair"`
-- Copy all other files into `"X-Plane 12\Resources\plugins\PythonPlugins"
+- Copy all other files into `"X-Plane 12\Resources\plugins\PythonPlugins"`
 
 ### Creating and activating Python environment for `server.py`
 
