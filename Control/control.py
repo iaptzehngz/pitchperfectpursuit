@@ -154,6 +154,8 @@ def main():
             while vlc_process.poll() is None:
                 time.sleep(1)
 
+            print("Self-reflect for 30 seconds.")
+
             time.sleep(30)
     feedback_rating = rating('feedback')
     feedback_feedback = input("Any feedback on the feedback?\n")

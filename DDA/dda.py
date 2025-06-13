@@ -193,6 +193,9 @@ def main():
             if i == 2:
                 write_log(saves_dir, 'scores.txt', f'**PRE-TEST**:\n\n% time within:\nabs(pitch dev<5deg): {pitch_time}, \nabs(heading dev<5deg): {heading_time}, \n500ft<distance<1500ft: {distance_time}\n\n\n\n')
                 csv_data = ['DDA', name, str_date_time, distance_time, pitch_time, heading_time]
+            
+            print("Self-reflect for 30 seconds.")
+
             if i in (2,3,4,5,6,7,8):
                 time.sleep(34) 
             
