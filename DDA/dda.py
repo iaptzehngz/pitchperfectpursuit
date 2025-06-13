@@ -109,7 +109,7 @@ def main():
     direction = 1
 
     name = input("Enter your name: ")
-    name = app.name.upper()
+    name = name.upper()
     date_time = datetime.now()
     str_date_time = date_time.strftime("%d-%m-%Y %H%M%S")
     file_name = f'{name} {str_date_time}'
